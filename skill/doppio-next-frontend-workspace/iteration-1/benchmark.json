@@ -1,0 +1,306 @@
+{
+  "metadata": {
+    "skill_name": "doppio-next-frontend",
+    "skill_path": "skill/doppio-next-frontend",
+    "executor_model": "claude (session model)",
+    "analyzer_model": "claude (session model)",
+    "timestamp": "2026-07-05T16:00:00Z",
+    "evals_run": [
+      0,
+      1,
+      2
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 0,
+      "eval_name": "eval-0-scaffold-new-frontend",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 78.8,
+        "tokens": 30654,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends the bench add-next-spa command (Doppio Next CLI)",
+          "passed": true,
+          "evidence": "mentions add-next-spa"
+        },
+        {
+          "text": "Chooses static-export serving with no Node process in production",
+          "passed": true,
+          "evidence": "static export chosen"
+        },
+        {
+          "text": "Dev workflow: Next on :8080 proxying API to bench :8000",
+          "passed": true,
+          "evidence": "ports found"
+        },
+        {
+          "text": "Explains prod build landing in the app's public/ and www/ with CSRF injection",
+          "passed": true,
+          "evidence": "public/, www/, csrf discussed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "eval_name": "eval-0-scaffold-new-frontend",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 2,
+        "failed": 2,
+        "total": 4,
+        "time_seconds": 114.2,
+        "tokens": 26116,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Recommends the bench add-next-spa command (Doppio Next CLI)",
+          "passed": false,
+          "evidence": "no add-next-spa; hand-rolled setup"
+        },
+        {
+          "text": "Chooses static-export serving with no Node process in production",
+          "passed": true,
+          "evidence": "static export chosen"
+        },
+        {
+          "text": "Dev workflow: Next on :8080 proxying API to bench :8000",
+          "passed": false,
+          "evidence": "8080:False 8000:True"
+        },
+        {
+          "text": "Explains prod build landing in the app's public/ and www/ with CSRF injection",
+          "passed": true,
+          "evidence": "public/, www/, csrf discussed"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "eval-1-csrf-prod-debugging",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 170.5,
+        "tokens": 40285,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies missing window.csrf_token in the served HTML as the root cause",
+          "passed": true,
+          "evidence": "window.csrf_token named"
+        },
+        {
+          "text": "Explains the Jinja injection of frappe.session.csrf_token via www rendering",
+          "passed": true,
+          "evidence": "jinja + frappe.session.csrf_token"
+        },
+        {
+          "text": "Explains why dev worked (ignore_csrf / session config, not the proxy itself)",
+          "passed": true,
+          "evidence": "ignore_csrf/dev explanation present"
+        },
+        {
+          "text": "Warns against using ignore_csrf in production as the fix",
+          "passed": true,
+          "evidence": "warns against prod ignore_csrf"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "eval-1-csrf-prod-debugging",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 92.8,
+        "tokens": 23750,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Identifies missing window.csrf_token in the served HTML as the root cause",
+          "passed": true,
+          "evidence": "window.csrf_token named"
+        },
+        {
+          "text": "Explains the Jinja injection of frappe.session.csrf_token via www rendering",
+          "passed": true,
+          "evidence": "jinja + frappe.session.csrf_token"
+        },
+        {
+          "text": "Explains why dev worked (ignore_csrf / session config, not the proxy itself)",
+          "passed": true,
+          "evidence": "ignore_csrf/dev explanation present"
+        },
+        {
+          "text": "Warns against using ignore_csrf in production as the fix",
+          "passed": false,
+          "evidence": "no explicit warning found"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "eval-2-add-consistent-page",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 100.6,
+        "tokens": 41015,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses the AppHeader shell with the useRequireAuth guard",
+          "passed": true,
+          "evidence": "AppHeader+useRequireAuth"
+        },
+        {
+          "text": "Realtime via useFrappeEventListener('list_update') + mutate (app convention)",
+          "passed": true,
+          "evidence": "list_update + mutate"
+        },
+        {
+          "text": "Renders all three states: skeleton, error hint, empty state",
+          "passed": true,
+          "evidence": "three states present"
+        },
+        {
+          "text": "Uses shadcn Badge/Table/Input with token variants, no hardcoded hex colors",
+          "passed": true,
+          "evidence": "shadcn Badge, no hex"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "eval_name": "eval-2-add-consistent-page",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 2,
+        "failed": 2,
+        "total": 4,
+        "time_seconds": 64.8,
+        "tokens": 22961,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Uses the AppHeader shell with the useRequireAuth guard",
+          "passed": false,
+          "evidence": "custom shell used"
+        },
+        {
+          "text": "Realtime via useFrappeEventListener('list_update') + mutate (app convention)",
+          "passed": false,
+          "evidence": "different realtime approach"
+        },
+        {
+          "text": "Renders all three states: skeleton, error hint, empty state",
+          "passed": true,
+          "evidence": "three states present"
+        },
+        {
+          "text": "Uses shadcn Badge/Table/Input with token variants, no hardcoded hex colors",
+          "passed": true,
+          "evidence": "shadcn Badge, no hex"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 116.633,
+        "stddev": 47.906,
+        "min": 78.8,
+        "max": 170.5
+      },
+      "tokens": {
+        "mean": 37318,
+        "stddev": 5782.724,
+        "min": 30654,
+        "max": 41015
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.583,
+        "stddev": 0.144,
+        "min": 0.5,
+        "max": 0.75
+      },
+      "time_seconds": {
+        "mean": 90.6,
+        "stddev": 24.773,
+        "min": 64.8,
+        "max": 114.2
+      },
+      "tokens": {
+        "mean": 24275.667,
+        "stddev": 1641.874,
+        "min": 22961,
+        "max": 26116
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.42",
+      "time_seconds": "+26.0",
+      "tokens": "+13042"
+    }
+  },
+  "notes": [
+    "with_skill passed 12/12 assertions; baseline 7/12.",
+    "Baseline consistently misses the bench add-next-spa CLI (hand-rolls create-next-app + custom deploy scripts) - the skill's biggest win is knowing the tool exists.",
+    "Baseline CSRF answer was strong (near-parity: 3/4) - general Frappe CSRF knowledge is common; the skill adds the copy-export/Jinja specifics and the stale-Guest-token case.",
+    "Eval 2: baseline invents its own shell and realtime hook (useFrappeDocTypeEventListener) - functional but breaks app conventions; skill run matched AppHeader/list_update/StatCard exactly.",
+    "Skill runs cost ~1.5x tokens (reading references) - acceptable for correctness gain.",
+    "Single run per configuration: treat stddev as n/a, not certainty."
+  ]
+}

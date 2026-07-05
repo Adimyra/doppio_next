@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "prompt": "Add a suppliers page matching existing Doppio Next conventions: search, status badges, realtime, complete file.",
+  "assertions": [
+    "Uses the AppHeader shell with the useRequireAuth guard",
+    "Realtime via useFrappeEventListener('list_update') + mutate (app convention)",
+    "Renders all three states: skeleton, error hint, empty state",
+    "Uses shadcn Badge/Table/Input with token variants, no hardcoded hex colors"
+  ],
+  "eval_name": "eval-2-add-consistent-page"
+}

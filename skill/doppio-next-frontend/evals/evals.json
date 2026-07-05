@@ -1,0 +1,26 @@
+{
+  "skill_name": "doppio-next-frontend",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "scaffold-new-frontend",
+      "prompt": "I have a custom Frappe app called 'inventory_hub' on my bench and I want to give it a modern Next.js + TypeScript frontend with shadcn components. We don't need SSR - it's an internal stock dashboard. Walk me through exactly how to set it up, what commands to run, and what the resulting structure and dev/prod workflow looks like.",
+      "expected_output": "Recommends bench add-next-spa with static serving, correct commands, dev on :8080 with proxy to :8000, yarn build export into public/ and www/, mentions key structure and bench build wiring",
+      "files": []
+    },
+    {
+      "id": 1,
+      "eval_name": "csrf-prod-debugging",
+      "prompt": "my next.js frontend for our erpnext site logs in fine but every document save fails with 'CSRF Token missing or incorrect' - but ONLY in production. in dev with the proxy it all works. we build with output export and serve the static files through frappe at /portal. what is wrong and how do i fix it?",
+      "expected_output": "Identifies window.csrf_token must be injected into served HTML via Jinja ({{ frappe.session.csrf_token }}) because Frappe renders www/*.html; explains dev worked due to session/ignore_csrf; gives concrete fix in the copy/export step",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "add-consistent-page",
+      "prompt": "Add a suppliers page to my Doppio Next frontend (it lives at apps/crm_app/frontend). It should list Supplier documents with a search box, status badges, realtime updates when suppliers change, and it must match the conventions of the existing pages (dashboard/projects). Give me the complete page file.",
+      "expected_output": "Complete src/app/suppliers/page.tsx using AppHeader + useRequireAuth, useFrappeGetDocList with fields/orderBy, useFrappeEventListener('list_update') + mutate, skeleton/error/empty states, shadcn Table/Badge/Input, nav entry mention",
+      "files": []
+    }
+  ]
+}

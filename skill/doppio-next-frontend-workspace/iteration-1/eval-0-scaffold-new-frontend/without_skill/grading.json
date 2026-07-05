@@ -1,0 +1,24 @@
+{
+  "expectations": [
+    {
+      "text": "Recommends the bench add-next-spa command (Doppio Next CLI)",
+      "passed": false,
+      "evidence": "no add-next-spa; hand-rolled setup"
+    },
+    {
+      "text": "Chooses static-export serving with no Node process in production",
+      "passed": true,
+      "evidence": "static export chosen"
+    },
+    {
+      "text": "Dev workflow: Next on :8080 proxying API to bench :8000",
+      "passed": false,
+      "evidence": "8080:False 8000:True"
+    },
+    {
+      "text": "Explains prod build landing in the app's public/ and www/ with CSRF injection",
+      "passed": true,
+      "evidence": "public/, www/, csrf discussed"
+    }
+  ]
+}

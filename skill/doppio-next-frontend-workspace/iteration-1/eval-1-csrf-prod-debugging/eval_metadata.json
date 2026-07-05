@@ -1,0 +1,11 @@
+{
+  "eval_id": 1,
+  "prompt": "Static-exported Next frontend served by Frappe at /portal: saves fail with CSRF error only in production. Diagnose and fix.",
+  "assertions": [
+    "Identifies missing window.csrf_token in the served HTML as the root cause",
+    "Explains the Jinja injection of frappe.session.csrf_token via www rendering",
+    "Explains why dev worked (ignore_csrf / session config, not the proxy itself)",
+    "Warns against using ignore_csrf in production as the fix"
+  ],
+  "eval_name": "eval-1-csrf-prod-debugging"
+}

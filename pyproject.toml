@@ -1,0 +1,21 @@
+[project]
+name = "doppio_next"
+authors = [
+    { name = "Adimyra", email = "admin@adimyra.com" }
+]
+description = "Attach Next.js + TypeScript + Tailwind v4 + shadcn/ui frontends to Frappe/ERPNext apps."
+# Parity with Frappe/ERPNext v16 (Python 3.14, Node 24, Yarn 1.22+)
+requires-python = ">=3.14"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    # "frappe" is installed and managed by bench.
+    "Click~=8.2.0",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0-dev,<17.0.0"

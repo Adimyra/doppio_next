@@ -1,0 +1,23 @@
+include MANIFEST.in
+include README.md
+include license.txt
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include doppio_next *.css
+recursive-include doppio_next *.csv
+recursive-include doppio_next *.html
+recursive-include doppio_next *.ico
+recursive-include doppio_next *.js
+recursive-include doppio_next *.mjs
+recursive-include doppio_next *.ts
+recursive-include doppio_next *.tsx
+recursive-include doppio_next *.json
+recursive-include doppio_next *.md
+recursive-include doppio_next *.png
+recursive-include doppio_next *.py
+recursive-include doppio_next *.svg
+recursive-include doppio_next *.txt
+recursive-exclude doppio_next *.pyc

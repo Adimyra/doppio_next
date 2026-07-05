@@ -1,0 +1,24 @@
+{
+  "expectations": [
+    {
+      "text": "Uses the AppHeader shell with the useRequireAuth guard",
+      "passed": true,
+      "evidence": "AppHeader+useRequireAuth"
+    },
+    {
+      "text": "Realtime via useFrappeEventListener('list_update') + mutate (app convention)",
+      "passed": true,
+      "evidence": "list_update + mutate"
+    },
+    {
+      "text": "Renders all three states: skeleton, error hint, empty state",
+      "passed": true,
+      "evidence": "three states present"
+    },
+    {
+      "text": "Uses shadcn Badge/Table/Input with token variants, no hardcoded hex colors",
+      "passed": true,
+      "evidence": "shadcn Badge, no hex"
+    }
+  ]
+}

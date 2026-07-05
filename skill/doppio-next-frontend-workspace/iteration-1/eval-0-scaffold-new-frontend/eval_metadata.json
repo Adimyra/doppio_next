@@ -1,0 +1,11 @@
+{
+  "eval_id": 0,
+  "prompt": "Set up a Next.js + TS + shadcn frontend for Frappe app 'inventory_hub', no SSR needed; exact commands, structure, dev/prod workflow.",
+  "assertions": [
+    "Recommends the bench add-next-spa command (Doppio Next CLI)",
+    "Chooses static-export serving with no Node process in production",
+    "Dev workflow: Next on :8080 proxying API to bench :8000",
+    "Explains prod build landing in the app's public/ and www/ with CSRF injection"
+  ],
+  "eval_name": "eval-0-scaffold-new-frontend"
+}

@@ -1,0 +1,24 @@
+{
+  "expectations": [
+    {
+      "text": "Identifies missing window.csrf_token in the served HTML as the root cause",
+      "passed": true,
+      "evidence": "window.csrf_token named"
+    },
+    {
+      "text": "Explains the Jinja injection of frappe.session.csrf_token via www rendering",
+      "passed": true,
+      "evidence": "jinja + frappe.session.csrf_token"
+    },
+    {
+      "text": "Explains why dev worked (ignore_csrf / session config, not the proxy itself)",
+      "passed": true,
+      "evidence": "ignore_csrf/dev explanation present"
+    },
+    {
+      "text": "Warns against using ignore_csrf in production as the fix",
+      "passed": true,
+      "evidence": "warns against prod ignore_csrf"
+    }
+  ]
+}
