@@ -1,0 +1,248 @@
+[
+    {
+        "Id": "5f00583ca9096d2b3d1b7bd02af7565f4abfecd95d02f68bf0d412edfc281fa1",
+        "Created": "2026-04-04T22:31:01.734006463Z",
+        "Path": "docker-entrypoint.sh",
+        "Args": [
+            "redis-server"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 61862,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-07-05T16:58:44.710117963Z",
+            "FinishedAt": "2026-07-05T16:46:40.807458462Z"
+        },
+        "Image": "sha256:46884be93652d02a96a176ccf173d1040bef365c5706aa7b6a1931caec8bfeef",
+        "ResolvConfPath": "/var/lib/docker/containers/5f00583ca9096d2b3d1b7bd02af7565f4abfecd95d02f68bf0d412edfc281fa1/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/5f00583ca9096d2b3d1b7bd02af7565f4abfecd95d02f68bf0d412edfc281fa1/hostname",
+        "HostsPath": "/var/lib/docker/containers/5f00583ca9096d2b3d1b7bd02af7565f4abfecd95d02f68bf0d412edfc281fa1/hosts",
+        "LogPath": "/var/lib/docker/containers/5f00583ca9096d2b3d1b7bd02af7565f4abfecd95d02f68bf0d412edfc281fa1/5f00583ca9096d2b3d1b7bd02af7565f4abfecd95d02f68bf0d412edfc281fa1-json.log",
+        "Name": "/erpnext-redis-queue-1",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "frappe_docker_redis-queue-data:/data:rw"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "frappe_docker_default",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "unless-stopped",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "volume",
+                "Name": "frappe_docker_redis-queue-data",
+                "Source": "/var/lib/docker/volumes/frappe_docker_redis-queue-data/_data",
+                "Destination": "/data",
+                "Driver": "local",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+        "Config": {
+            "Hostname": "5f00583ca909",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GOSU_VERSION=1.17",
+                "REDIS_VERSION=6.2.21",
+                "REDIS_DOWNLOAD_URL=http://download.redis.io/releases/redis-6.2.21.tar.gz",
+                "REDIS_DOWNLOAD_SHA=6383b32ba8d246f41bbbb83663381f5a5f4c4713235433cec22fc4a47e9b6d5f"
+            ],
+            "Cmd": [
+                "redis-server"
+            ],
+            "Image": "redis:6.2-alpine",
+            "Volumes": {
+                "/data": {}
+            },
+            "WorkingDir": "/data",
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "Labels": {
+                "com.docker.compose.config-hash": "15e691a0e54ab0cb7df17df476161bfd9f99d8202c8330e916301a03f6f716a0",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.depends_on": "",
+                "com.docker.compose.image": "sha256:46884be93652d02a96a176ccf173d1040bef365c5706aa7b6a1931caec8bfeef",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "erpnext",
+                "com.docker.compose.project.config_files": "/Users/santoshshunya/adiserver/frappe_docker/docker-compose.yml",
+                "com.docker.compose.project.working_dir": "/Users/santoshshunya/adiserver/frappe_docker",
+                "com.docker.compose.service": "redis-queue",
+                "com.docker.compose.version": "5.1.1"
+            },
+            "StopTimeout": 1
+        },
+        "NetworkSettings": {
+            "SandboxID": "337c1676a18d830f2099dca68257efda718a50d7e3d6d868306fcf73a82c752c",
+            "SandboxKey": "/var/run/docker/netns/337c1676a18d",
+            "Ports": {
+                "6379/tcp": null
+            },
+            "Networks": {
+                "frappe_docker_default": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": [
+                        "erpnext-redis-queue-1",
+                        "redis-queue"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "eee985468aef7d4e6cf7c4912bedfcf1fd4e6a56dd3ebf01bd7bf4e9ef4ccc7c",
+                    "EndpointID": "edc4a40a9b1464dd00c0746c7b099d16cc14cb675842b9d0f57e399e6dc16ec3",
+                    "Gateway": "172.18.0.1",
+                    "IPAddress": "172.18.0.3",
+                    "MacAddress": "da:45:6a:71:9d:22",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "erpnext-redis-queue-1",
+                        "redis-queue",
+                        "5f00583ca909"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:7ecfbb35b852a3ea3c431c18943c8b6f69f5ed354f41c8eb2b10674a9bf3f881",
+            "size": 2484,
+            "annotations": {
+                "com.docker.official-images.bashbrew.arch": "arm64v8",
+                "org.opencontainers.image.base.digest": "sha256:8aeb753a4455dcaab477dc74b1f4acb91a13e80d637721a4d1a68e4251cbcd9c",
+                "org.opencontainers.image.base.name": "alpine:3.21",
+                "org.opencontainers.image.created": "2026-01-28T02:36:41Z",
+                "org.opencontainers.image.revision": "d42d7aec93b1c54dd46f37a66a92f62478456039",
+                "org.opencontainers.image.source": "https://github.com/redis/docker-library-redis.git#d42d7aec93b1c54dd46f37a66a92f62478456039:6.2/alpine",
+                "org.opencontainers.image.url": "https://hub.docker.com/_/redis",
+                "org.opencontainers.image.version": "6.2.21-alpine"
+            },
+            "platform": {
+                "architecture": "arm64",
+                "os": "linux",
+                "variant": "v8"
+            }
+        }
+    }
+]

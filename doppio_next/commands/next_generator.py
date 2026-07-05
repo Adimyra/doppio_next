@@ -168,11 +168,23 @@ class NextSPAGenerator:
         )
 
     def setup_shadcn(self):
-        subprocess.run(
+        # The starter templates use Radix idioms (asChild on Button and
+        # the Dropdown/Sheet triggers). shadcn CLI 4.x defaults to Base UI
+        # ("base-nova" style, no asChild), so pin the Radix library.
+        # Flags drift between CLI majors — try newest first:
+        #   4.x:  --base radix
+        #   2-3x: --base-color neutral (radix was the only library)
+        attempts = [
+            ["npx", "shadcn@latest", "init", "--yes", "--base", "radix"],
             ["npx", "shadcn@latest", "init", "--yes", "--base-color", "neutral"],
-            cwd=self.spa_path,
-            check=True,
-        )
+        ]
+        for i, cmd in enumerate(attempts):
+            try:
+                subprocess.run(cmd, cwd=self.spa_path, check=True)
+                break
+            except subprocess.CalledProcessError:
+                if i == len(attempts) - 1:
+                    raise
         subprocess.run(
             ["npx", "shadcn@latest", "add", "--yes", "--overwrite"]
             + SHADCN_COMPONENTS,

@@ -1,0 +1,171 @@
+# Reconstructed compose for the `erpnext` production stack (ADI-MAC)
+# Generated 2026-07-05 from live container inspect data.
+#
+# Key changes vs the lost original:
+#   - All frappe services run adimyra/erpnext-custom:2026-07-05
+#     (docker commit of erpnext-backend-1: 17 apps + built assets)
+#   - ONE shared `assets` volume for all services (the old stack gave each
+#     container an anonymous assets volume — that's why frontend served
+#     stale CSS after rebuilds)
+#   - Existing data volumes (sites, db, redis-queue) are reused as external.
+#
+# AFTER ANY FUTURE `bench build` OR APP UPDATE inside backend:
+#   docker commit erpnext-backend-1 adimyra/erpnext-custom:<date>
+#   update `image:` below, then: docker compose up -d
+# (in-container builds only change the backend's own layer — recommit to
+#  propagate to workers/frontend)
+
+name: erpnext
+
+x-frappe: &frappe
+  image: adimyra/erpnext-custom:2026-07-05
+  restart: unless-stopped
+  volumes:
+    - sites:/home/frappe/frappe-bench/sites
+    - assets:/home/frappe/frappe-bench/sites/assets
+    - logs:/home/frappe/frappe-bench/logs
+  networks:
+    - frappe_network
+
+services:
+  database:
+    image: mariadb:11.8
+    container_name: mariadb-database   # common_site_config db_host points here
+    restart: unless-stopped
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+      - --skip-innodb-read-only-compressed
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
+      MYSQL_ROOT_PASSWORD: changeit
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      retries: 10
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - mariadb_network
+
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-cache-data:/data
+    networks:
+      - frappe_network
+
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-queue-data:/data
+    networks:
+      - frappe_network
+
+  backend:
+    <<: *frappe
+    command:
+      - /home/frappe/frappe-bench/env/bin/gunicorn
+      - --chdir=/home/frappe/frappe-bench/sites
+      - --bind=0.0.0.0:8000
+      - --threads=4
+      - --workers=2
+      - --worker-class=gthread
+      - --worker-tmp-dir=/dev/shm
+      - --timeout=120
+      - --preload
+      - frappe.app:application
+    networks:
+      - frappe_network
+      - mariadb_network
+    depends_on:
+      database:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+
+  websocket:
+    <<: *frappe
+    command: ["node", "/home/frappe/frappe-bench/apps/frappe/socketio.js"]
+    depends_on:
+      backend:
+        condition: service_started
+
+  scheduler:
+    <<: *frappe
+    command: ["bench", "schedule"]
+    networks:
+      - frappe_network
+      - mariadb_network
+    depends_on:
+      backend:
+        condition: service_started
+
+  queue-short:
+    <<: *frappe
+    command: ["bench", "worker", "--queue", "short,default"]
+    networks:
+      - frappe_network
+      - mariadb_network
+    depends_on:
+      backend:
+        condition: service_started
+
+  queue-long:
+    <<: *frappe
+    command: ["bench", "worker", "--queue", "long,default,short"]
+    networks:
+      - frappe_network
+      - mariadb_network
+    depends_on:
+      backend:
+        condition: service_started
+
+  frontend:
+    <<: *frappe
+    command: ["nginx-entrypoint.sh"]
+    environment:
+      BACKEND: backend:8000
+      SOCKETIO: websocket:9000
+      FRAPPE_SITE_NAME_HEADER: $$host
+      CLIENT_MAX_BODY_SIZE: 50m
+      PROXY_READ_TIMEOUT: "120"
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+    ports:
+      - "8080:8080"
+    depends_on:
+      backend:
+        condition: service_started
+      websocket:
+        condition: service_started
+
+volumes:
+  sites:
+    name: frappe_docker_sites
+    external: true
+  db-data:
+    name: frappe_docker_db-data
+    external: true
+  redis-queue-data:
+    name: frappe_docker_redis-queue-data
+    external: true
+  assets:
+    name: erpnext_assets
+    external: true   # created + seeded once during cutover (see CUTOVER.md)
+  redis-cache-data:
+  logs:
+
+networks:
+  frappe_network:
+    name: frappe_docker_default
+    external: true    # traefik is attached to this network
+  mariadb_network:
+    name: mariadb-network
+    external: true

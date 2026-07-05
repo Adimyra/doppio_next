@@ -1,0 +1,10 @@
+adimyra_adimyra
+bridge
+doppio-next_default
+erpnext15_default
+frappe_docker_default
+host
+lineup_default
+mariadb-network
+none
+sd-management_default

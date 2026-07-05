@@ -1,0 +1,274 @@
+[
+    {
+        "Id": "27ab80e1f2477ce6efd91426522f1fd844efd081378fe81073d83578252e2fb3",
+        "Created": "2026-04-04T22:31:02.711769296Z",
+        "Path": "nginx-entrypoint.sh",
+        "Args": [],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 9760,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-07-05T17:17:34.185611417Z",
+            "FinishedAt": "2026-07-05T17:17:15.54357913Z"
+        },
+        "Image": "sha256:89412566e2d04fbd649d08f0a528a785f4cb5078db8132b1c1047d19dfeffdc3",
+        "ResolvConfPath": "/var/lib/docker/containers/27ab80e1f2477ce6efd91426522f1fd844efd081378fe81073d83578252e2fb3/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/27ab80e1f2477ce6efd91426522f1fd844efd081378fe81073d83578252e2fb3/hostname",
+        "HostsPath": "/var/lib/docker/containers/27ab80e1f2477ce6efd91426522f1fd844efd081378fe81073d83578252e2fb3/hosts",
+        "LogPath": "/var/lib/docker/containers/27ab80e1f2477ce6efd91426522f1fd844efd081378fe81073d83578252e2fb3/27ab80e1f2477ce6efd91426522f1fd844efd081378fe81073d83578252e2fb3-json.log",
+        "Name": "/erpnext-frontend-1",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "frappe_docker_sites:/home/frappe/frappe-bench/sites:rw"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "frappe_docker_default",
+            "PortBindings": {
+                "8080/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "8080"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "unless-stopped",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": [],
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": null,
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "volume",
+                "Name": "798c94448c4c65630e3f4a7eda1bebb012b9032ece8ff3ca4b0372753b89085d",
+                "Source": "/var/lib/docker/volumes/798c94448c4c65630e3f4a7eda1bebb012b9032ece8ff3ca4b0372753b89085d/_data",
+                "Destination": "/home/frappe/frappe-bench/logs",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            },
+            {
+                "Type": "volume",
+                "Name": "frappe_docker_sites",
+                "Source": "/var/lib/docker/volumes/frappe_docker_sites/_data",
+                "Destination": "/home/frappe/frappe-bench/sites",
+                "Driver": "local",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": ""
+            },
+            {
+                "Type": "volume",
+                "Name": "0fddd7c58521a0201afb2a160c085dde4247798d9b2f826ab720b34d68356341",
+                "Source": "/var/lib/docker/volumes/0fddd7c58521a0201afb2a160c085dde4247798d9b2f826ab720b34d68356341/_data",
+                "Destination": "/home/frappe/frappe-bench/sites/assets",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+        "Config": {
+            "Hostname": "27ab80e1f247",
+            "Domainname": "",
+            "User": "frappe",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "ExposedPorts": {
+                "8080/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PROXY_READ_TIMEOUT=120",
+                "UPSTREAM_REAL_IP_ADDRESS=127.0.0.1",
+                "CLIENT_MAX_BODY_SIZE=50m",
+                "SOCKETIO=websocket:9000",
+                "UPSTREAM_REAL_IP_RECURSIVE=off",
+                "FRAPPE_SITE_NAME_HEADER=$host",
+                "BACKEND=backend:8000",
+                "UPSTREAM_REAL_IP_HEADER=X-Forwarded-For",
+                "PATH=/home/frappe/.nvm/versions/node/v24.12.0/bin/:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "PYTHON_VERSION=3.14.2",
+                "PYTHON_SHA256=ce543ab854bc256b61b71e9b27f831ffd1bfd60a479d639f8be7f9757cf573e9",
+                "NVM_DIR=/home/frappe/.nvm"
+            ],
+            "Cmd": [
+                "nginx-entrypoint.sh"
+            ],
+            "Image": "frappe/erpnext:latest",
+            "Volumes": {
+                "/home/frappe/frappe-bench/logs": {},
+                "/home/frappe/frappe-bench/sites": {},
+                "/home/frappe/frappe-bench/sites/assets": {}
+            },
+            "WorkingDir": "/home/frappe/frappe-bench",
+            "Entrypoint": null,
+            "Labels": {
+                "com.docker.compose.config-hash": "000d41c9881652e46f11a9a07f26d176ac33b5f2af1b61f03030c9813195e7d3",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.depends_on": "backend:service_started:false,websocket:service_started:false",
+                "com.docker.compose.image": "sha256:89412566e2d04fbd649d08f0a528a785f4cb5078db8132b1c1047d19dfeffdc3",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "erpnext",
+                "com.docker.compose.project.config_files": "/Users/santoshshunya/adiserver/frappe_docker/docker-compose.yml",
+                "com.docker.compose.project.working_dir": "/Users/santoshshunya/adiserver/frappe_docker",
+                "com.docker.compose.service": "frontend",
+                "com.docker.compose.version": "5.1.1"
+            },
+            "StopTimeout": 1
+        },
+        "NetworkSettings": {
+            "SandboxID": "8cb4586c89ba9c56ad58a6b4b642e554cb9727953de49ace9bbbeab2ac46c84a",
+            "SandboxKey": "/var/run/docker/netns/8cb4586c89ba",
+            "Ports": {
+                "8080/tcp": [
+                    {
+                        "HostIp": "0.0.0.0",
+                        "HostPort": "8080"
+                    },
+                    {
+                        "HostIp": "::",
+                        "HostPort": "8080"
+                    }
+                ]
+            },
+            "Networks": {
+                "frappe_docker_default": {
+                    "IPAMConfig": {},
+                    "Links": null,
+                    "Aliases": [],
+                    "DriverOpts": {},
+                    "GwPriority": 0,
+                    "NetworkID": "eee985468aef7d4e6cf7c4912bedfcf1fd4e6a56dd3ebf01bd7bf4e9ef4ccc7c",
+                    "EndpointID": "571387b1686813c100cbfe98be60a88de0ad4dbb6647ebceb09e8345bb9cd938",
+                    "Gateway": "172.18.0.1",
+                    "IPAddress": "172.18.0.6",
+                    "MacAddress": "e2:89:74:ef:52:89",
+                    "IPPrefixLen": 16,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "erpnext-frontend-1",
+                        "27ab80e1f247"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:5480818c6f7ebd3e540251e39c969561be6623631bc4ca4b470f91266e083bc7",
+            "size": 2385,
+            "platform": {
+                "architecture": "arm64",
+                "os": "linux"
+            }
+        }
+    }
+]

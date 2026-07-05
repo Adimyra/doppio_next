@@ -19,7 +19,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <FrappeProvider
       url=""
-      enableSocket
+      // window-guarded: the SDK derives the socket URL from window.location,
+      // which doesn't exist during static-export prerendering
+      enableSocket={typeof window !== "undefined"}
       socketPort="9000"
       siteName={
         typeof window !== "undefined" ? window.location.hostname : undefined

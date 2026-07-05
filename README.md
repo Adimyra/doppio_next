@@ -6,6 +6,18 @@ A Frappe app (in the spirit of [doppio](https://github.com/NagariaHussain/doppio
 
 Toolchain parity with **Frappe/ERPNext v16**: Python 3.14, Node.js 24 (LTS), Yarn 1.22+, MariaDB 11.8, pip 25.3+. The generated frontends declare `engines: { node: ">=24" }`. (For a v15 bench, relax `requires-python` in pyproject.toml to `>=3.10` and the frappe dependency pin — the code itself is 3.10-compatible.)
 
+## Run on Docker
+
+A ready-made Frappe v16 dev bench (MariaDB 11.8 + Redis 7 + Node 24) lives in `docker/`:
+
+```bash
+cd docker && docker compose up -d
+docker compose exec frappe bash /workspace/doppio_next/docker/init-bench.sh
+docker compose exec frappe bash -lc "cd frappe-bench && bench start"
+```
+
+Desk at http://localhost:8000, Next dev servers at http://localhost:8080. Full instructions: `docker/README.md`.
+
 ## Installation
 
 ```bash

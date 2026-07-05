@@ -1,0 +1,54 @@
+# Doppio Next — dockerized Frappe v16 dev bench
+# Versions match Frappe/ERPNext v16 requirements:
+#   MariaDB 11.8, Redis 7, Node 24 (installed in init script), Python 3.14
+#
+# Usage: see docker/README.md (or the Docker section in the project README)
+name: doppio-next
+
+services:
+  mariadb:
+    image: mariadb:11.8
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --skip-character-set-client-handshake
+    environment:
+      MARIADB_ROOT_PASSWORD: admin
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - mariadb-data:/var/lib/mysql
+
+  redis-cache:
+    image: redis:7-alpine
+
+  redis-queue:
+    image: redis:7-alpine
+
+  frappe:
+    image: frappe/bench:latest
+    command: sleep infinity
+    working_dir: /home/frappe
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      redis-queue:
+        condition: service_started
+    # Host ports shifted +1 to avoid colliding with the production
+    # erpnext stacks on this machine (erpnext-frontend-1 owns :8080).
+    ports:
+      - "8001:8000"   # bench web        → http://localhost:8001
+      - "9001:9000"   # socketio         → localhost:9001
+      - "8081:8080"   # Next.js dev      → http://localhost:8081
+    volumes:
+      # this repo, mounted space-free so `bench get-app` works
+      - ..:/workspace/doppio_next:cached
+      - bench-data:/home/frappe
+
+volumes:
+  mariadb-data:
+  bench-data:
