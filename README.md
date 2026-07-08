@@ -2,7 +2,9 @@
 
 A Frappe app (in the spirit of [doppio](https://github.com/NagariaHussain/doppio)) that scaffolds a complete, production-ready **Next.js + TypeScript + Tailwind CSS v4 + shadcn/ui** customer portal inside any custom Frappe/ERPNext app — wired to the Frappe backend with **frappe-react-sdk**, cookie auth, realtime (socket.io), and driven end-to-end by **Website Settings** and **Portal Settings**, so site managers control branding, navigation, theming and content from the Desk with no redeploys.
 
-Built by [Adimyra Systems Private Limited](mailto:care@adimyra.com) · ERPNext + Next.js.
+Created by **Md Faiyaz Ansari** · [Adimyra Systems Private Limited](mailto:care@adimyra.com) · ERPNext + Next.js.
+
+Hacking on doppio_next itself? See **[DEVELOPER.md](DEVELOPER.md)** for generator internals, the API surface, template iteration, and known gotchas.
 
 ## Features
 
@@ -127,6 +129,20 @@ What it does:
 5. Installs `<app>/website_api.py` into the host app (never overwrites your edits)
 6. Patches `package.json` scripts (SPA + app root) so `bench build` works, appends the brand palette to `globals.css`
 7. Sets `home_page` on the bench's current site, creates the Adi Settings custom fields, and appends the website_redirects block to the host app's hooks.py
+
+### Full fresh-scaffold test (two lines)
+
+To verify the whole pipeline on a throwaway app — remove, recreate, install, scaffold, build:
+
+```bash
+# 1 — remove completely (site + bench)
+cd $BENCH_DIR && bench --site <site> uninstall-app <app> --yes && bench remove-app <app>
+
+# 2 — recreate, install, scaffold, build, serve
+bench new-app <app> && bench --site <site> install-app <app> && bench add-next-spa --app <app> --name frontend --serving static && (cd apps/<app>/frontend && yarn build) && bench --site <site> clear-cache
+```
+
+Then `/` serves the SPA, `/login` `/about` `/contact` redirect into it, and Website Settings has the Adi Settings tab. Install/scaffold order doesn't matter — the app's `after_install` hook configures each site it's installed on.
 
 ## Naming and multiple frontends
 
