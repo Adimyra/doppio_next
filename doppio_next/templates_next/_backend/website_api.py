@@ -26,6 +26,9 @@ def get_website_settings():
 
     return {
         "app_name": ws.app_name,
+        "title_prefix": ws.get("title_prefix"),
+        "banner_html": ws.get("banner_html"),
+        "show_account_deletion_link": ws.get("show_account_deletion_link"),
         "app_logo": ws.app_logo,
         "banner_image": ws.banner_image,
         "favicon": ws.favicon,

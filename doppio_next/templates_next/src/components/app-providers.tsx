@@ -11,8 +11,12 @@ function DynamicFavicon() {
   const ws = useWebsiteSettings();
 
   useEffect(() => {
-    if (ws?.app_name) {
-      document.title = ws.app_name;
+    const title = [ws?.title_prefix, ws?.app_name]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    if (title) {
+      document.title = title;
     }
     const icon = ws?.favicon || ws?.app_logo;
     if (!icon) return;

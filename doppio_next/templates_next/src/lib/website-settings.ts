@@ -12,6 +12,9 @@ export interface TopBarItem {
 
 export interface WebsiteSettings {
   app_name?: string;
+  title_prefix?: string;
+  banner_html?: string;
+  show_account_deletion_link?: 0 | 1;
   app_logo?: string;
   banner_image?: string;
   favicon?: string;

@@ -212,6 +212,14 @@ export function SiteHeader() {
     : "bg-accent text-accent-foreground";
 
   return (
+    <>
+      {ws?.banner_html ? (
+        <div
+          className="border-b bg-secondary/60 px-6 py-2 text-center text-sm [&_a]:text-primary [&_a]:underline"
+          // Website Settings "Banner HTML" (site managers only)
+          dangerouslySetInnerHTML={{ __html: ws.banner_html }}
+        />
+      ) : null}
     <header
       style={navbarBg}
       className={cn(
@@ -290,6 +298,7 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
+    </>
   );
 }
 

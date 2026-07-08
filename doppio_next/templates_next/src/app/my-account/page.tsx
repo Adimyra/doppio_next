@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useRequireAuth } from "@/lib/use-require-auth";
-import { useSessionUser } from "@/lib/website-settings";
+import { useSessionUser, useWebsiteSettings } from "@/lib/website-settings";
 
 interface PortalSection {
   title: string;
@@ -72,6 +72,7 @@ function sectionIcon(doctype: string) {
 /* ------------------------------------------------------------------ */
 
 function ProfileSection() {
+  const ws = useWebsiteSettings();
   const { sessionUser, refresh } = useSessionUser();
   const { call: updateProfile } = useFrappePostCall(
     "__APP__.website_api.update_my_profile"
@@ -234,6 +235,21 @@ function ProfileSection() {
             ))}
           </dl>
         )}
+        {ws?.show_account_deletion_link ? (
+          <>
+            <Separator className="my-6" />
+            <p className="text-sm text-muted-foreground">
+              Want to leave?{" "}
+              {/* Frappe's data-deletion web form, outside the SPA basePath */}
+              <a
+                href="/request-to-delete-data?new=1"
+                className="font-medium text-destructive hover:underline"
+              >
+                Request account deletion
+              </a>
+            </p>
+          </>
+        ) : null}
       </CardContent>
     </Card>
   );
