@@ -1,0 +1,51 @@
+
+/* ------------------------------------------------------------------ */
+/* Brand theme — Adimyra Systems (deep forest #112921, moss #4D6443)  */
+/* Appended after the shadcn palette so these values win the cascade. */
+:root {
+  --primary: #112921;
+  --primary-foreground: #ffffff;
+  --secondary: #eef2ec;
+  --secondary-foreground: #112921;
+  --accent: #e7eee6;
+  --accent-foreground: #112921;
+  --muted: #f2f5f0;
+  --muted-foreground: #5c6b5e;
+  --ring: #4d6443;
+  --chart-1: #4d6443;
+  --chart-2: #112921;
+  --chart-3: #7d9472;
+  --chart-4: #a9bba0;
+  --chart-5: #d3ddce;
+  --sidebar-primary: #112921;
+  --sidebar-ring: #4d6443;
+}
+
+.dark {
+  --background: #0b100d;
+  --foreground: #eef2ec;
+  --card: #101712;
+  --card-foreground: #eef2ec;
+  --popover: #101712;
+  --popover-foreground: #eef2ec;
+  --primary: #4d6443;
+  --primary-foreground: #ffffff;
+  --secondary: #16211a;
+  --secondary-foreground: #dfe8dc;
+  --muted: #16211a;
+  --muted-foreground: #9db2a0;
+  --accent: #1a271f;
+  --accent-foreground: #e7eee6;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: rgba(238, 242, 236, 0.1);
+  --input: rgba(238, 242, 236, 0.14);
+  --ring: #4d6443;
+  --chart-1: #7d9472;
+  --chart-2: #4d6443;
+  --chart-3: #a9bba0;
+  --chart-4: #35492f;
+  --chart-5: #d3ddce;
+  --sidebar: #101712;
+  --sidebar-primary: #4d6443;
+  --sidebar-ring: #4d6443;
+}

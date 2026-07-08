@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { FrappeProvider } from "frappe-react-sdk";
 import { ensureCsrfToken } from "@/lib/csrf";
+import { ThemeProvider } from "@/components/theme-provider";
 import { useWebsiteSettings } from "@/lib/website-settings";
 
 /** Applies Website Settings favicon (falls back to app_logo) at runtime. */
@@ -56,7 +57,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       }
     >
       <DynamicFavicon />
-      {children}
+      <ThemeProvider>{children}</ThemeProvider>
     </FrappeProvider>
   );
 }

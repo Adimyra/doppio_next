@@ -1,6 +1,6 @@
 "use client";
 
-import { useFrappeGetCall } from "frappe-react-sdk";
+import { useFrappeAuth, useFrappeGetCall } from "frappe-react-sdk";
 
 export interface TopBarItem {
   label: string;
@@ -39,6 +39,37 @@ export function useWebsiteSettings(): WebsiteSettings | null {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
   return data?.message ?? null;
+}
+
+export interface SessionUser {
+  user: string;
+  email: string;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  user_image?: string;
+  mobile_no?: string;
+  phone?: string;
+  desk_access?: boolean;
+}
+
+/** Profile of the logged-in user (null while loading or logged out). */
+export function useSessionUser(): {
+  sessionUser: SessionUser | null;
+  refresh: () => void;
+} {
+  const { currentUser } = useFrappeAuth();
+  const { data, mutate } = useFrappeGetCall<{ message: SessionUser }>(
+    "__APP__.website_api.get_session_user",
+    undefined,
+    // null key skips the request entirely while logged out
+    currentUser ? "session-user" : null,
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+  return {
+    sessionUser: currentUser ? (data?.message ?? null) : null,
+    refresh: () => void mutate(),
+  };
 }
 
 /** Brand image for headers: Website Settings "Brand Image" wins, then App Logo. */

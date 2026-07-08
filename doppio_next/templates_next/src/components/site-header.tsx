@@ -1,22 +1,28 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useFrappeAuth } from "frappe-react-sdk";
-import { ChevronDown, Search } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, Search, UserRound } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ModeToggle } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import {
   brandImage,
   resolveItemUrl,
+  useSessionUser,
   useWebsiteSettings,
   type TopBarItem,
 } from "@/lib/website-settings";
@@ -25,30 +31,32 @@ import {
 const DEFAULT_NAV: TopBarItem[] = [
   { label: "Home", url: "/" },
   { label: "About", url: "/about" },
-  { label: "Blog", url: "/blog" },
+  { label: "Contact", url: "/contact" },
 ];
 
-function NavLink({ item, active }: { item: TopBarItem; active: boolean }) {
+function ItemAnchor({
+  item,
+  className,
+  children,
+}: {
+  item: TopBarItem;
+  className?: string;
+  children: React.ReactNode;
+}) {
   const { href, external } = resolveItemUrl(item.url);
-  return (
-    <Button
-      asChild
-      variant="ghost"
-      size="sm"
-      className={cn(active && "bg-accent text-accent-foreground")}
+  return external ? (
+    <a
+      href={href}
+      className={className}
+      target={item.open_in_new_tab ? "_blank" : undefined}
+      rel={item.open_in_new_tab ? "noopener noreferrer" : undefined}
     >
-      {external ? (
-        <a
-          href={href}
-          target={item.open_in_new_tab ? "_blank" : undefined}
-          rel={item.open_in_new_tab ? "noopener noreferrer" : undefined}
-        >
-          {item.label}
-        </a>
-      ) : (
-        <Link href={href}>{item.label}</Link>
-      )}
-    </Button>
+      {children}
+    </a>
+  ) : (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
   );
 }
 
@@ -68,26 +76,11 @@ function NavDropdown({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start">
-        {childItems.map((child) => {
-          const { href, external } = resolveItemUrl(child.url);
-          return (
-            <DropdownMenuItem key={child.label} asChild>
-              {external ? (
-                <a
-                  href={href}
-                  target={child.open_in_new_tab ? "_blank" : undefined}
-                  rel={
-                    child.open_in_new_tab ? "noopener noreferrer" : undefined
-                  }
-                >
-                  {child.label}
-                </a>
-              ) : (
-                <Link href={href}>{child.label}</Link>
-              )}
-            </DropdownMenuItem>
-          );
-        })}
+        {childItems.map((child) => (
+          <DropdownMenuItem key={child.label} asChild>
+            <ItemAnchor item={child}>{child.label}</ItemAnchor>
+          </DropdownMenuItem>
+        ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -104,7 +97,7 @@ function NavbarSearch() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="relative hidden sm:block">
+    <form onSubmit={onSubmit} className="relative hidden md:block">
       <Search className="absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         name="q"
@@ -112,6 +105,70 @@ function NavbarSearch() {
         className="h-8 w-44 pl-8 text-sm"
       />
     </form>
+  );
+}
+
+function UserMenu() {
+  const router = useRouter();
+  const { logout } = useFrappeAuth();
+  const { sessionUser } = useSessionUser();
+
+  async function onLogout() {
+    await logout();
+    router.replace("/login");
+  }
+
+  const initial = (sessionUser?.full_name ?? sessionUser?.user ?? "?")
+    .slice(0, 1)
+    .toUpperCase();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="rounded-full" size="icon">
+          <Avatar className="size-8">
+            {sessionUser?.user_image ? (
+              <AvatarImage
+                src={sessionUser.user_image}
+                alt={sessionUser.full_name ?? ""}
+              />
+            ) : null}
+            <AvatarFallback className="bg-primary/10 text-primary">
+              {initial}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>
+          <span className="block truncate">{sessionUser?.full_name}</span>
+          <span className="block truncate text-xs font-normal text-muted-foreground">
+            {sessionUser?.user}
+          </span>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/my-account">
+            <UserRound className="size-4" />
+            My Account
+          </Link>
+        </DropdownMenuItem>
+        {sessionUser?.desk_access ? (
+          <DropdownMenuItem asChild>
+            {/* Frappe Desk lives outside the SPA basePath */}
+            <a href="/app">
+              <LayoutDashboard className="size-4" />
+              Desk
+            </a>
+          </DropdownMenuItem>
+        ) : null}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={onLogout}>
+          <LogOut className="size-4" />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -126,51 +183,69 @@ export function SiteHeader() {
     items.filter((item) => item.parent_label === label);
 
   const logo = brandImage(ws);
-  const loggedOut = !isLoading && !currentUser;
 
   return (
-    <header className="flex items-center justify-between border-b px-6 py-3">
-      <div className="flex items-center gap-6">
-        <Link href="/" className="flex items-center gap-2">
-          {logo ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logo} alt={ws?.app_name || "__SPA__"} className="h-7" />
-          ) : (
-            <span className="text-lg font-semibold">
-              {ws?.app_name || "__SPA__"}
-            </span>
-          )}
-        </Link>
-        <nav className="flex items-center gap-1">
-          {topLevel.map((item) => {
-            const kids = childrenOf(item.label);
-            return kids.length ? (
-              <NavDropdown key={item.label} item={item} childItems={kids} />
-            ) : (
-              <NavLink
-                key={item.label}
-                item={item}
-                active={pathname === resolveItemUrl(item.url).href}
+    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
+        <div className="flex min-w-0 items-center gap-6">
+          <Link href="/" className="flex shrink-0 items-center gap-2">
+            {logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logo}
+                alt={ws?.app_name || "__SPA__"}
+                className="h-7"
               />
-            );
-          })}
-        </nav>
-      </div>
-      <div className="flex items-center gap-2">
-        {ws?.navbar_search ? <NavbarSearch /> : null}
-        {loggedOut && !ws?.hide_login ? (
-          <Button asChild variant="outline" size="sm">
-            <Link href="/login">Log in</Link>
-          </Button>
-        ) : null}
-        {loggedOut && ws && !ws.disable_signup && !ws.hide_login ? (
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/login#signup">Sign up</Link>
-          </Button>
-        ) : null}
-        <Button asChild size="sm">
-          <Link href="/dashboard">Open App</Link>
-        </Button>
+            ) : (
+              <span className="text-lg font-semibold">
+                {ws?.app_name || "__SPA__"}
+              </span>
+            )}
+          </Link>
+          <nav className="hidden items-center gap-1 sm:flex">
+            {topLevel.map((item) => {
+              const kids = childrenOf(item.label);
+              return kids.length ? (
+                <NavDropdown key={item.label} item={item} childItems={kids} />
+              ) : (
+                <Button
+                  key={item.label}
+                  asChild
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    pathname === resolveItemUrl(item.url).href &&
+                      "bg-accent text-accent-foreground"
+                  )}
+                >
+                  <ItemAnchor item={item}>{item.label}</ItemAnchor>
+                </Button>
+              );
+            })}
+          </nav>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {ws?.navbar_search ? <NavbarSearch /> : null}
+          <ModeToggle />
+          {isLoading ? (
+            <Skeleton className="size-8 rounded-full" />
+          ) : currentUser ? (
+            <UserMenu />
+          ) : (
+            <>
+              {!ws?.hide_login ? (
+                <Button asChild variant="outline" size="sm">
+                  <Link href="/login">Log in</Link>
+                </Button>
+              ) : null}
+              {ws && !ws.disable_signup && !ws.hide_login ? (
+                <Button asChild size="sm">
+                  <Link href="/login#signup">Sign up</Link>
+                </Button>
+              ) : null}
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
@@ -178,48 +253,97 @@ export function SiteHeader() {
 
 export function SiteFooter() {
   const ws = useWebsiteSettings();
+  const logo = brandImage(ws);
   const footerItems = ws?.footer_items ?? [];
+  const topLevel = footerItems.filter((item) => !item.parent_label);
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t px-6 py-8 text-center text-sm text-muted-foreground">
-      {footerItems.length ? (
-        <nav className="mb-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-          {footerItems.map((item) => {
-            const { href, external } = resolveItemUrl(item.url);
-            return external ? (
-              <a
-                key={item.label}
-                href={href}
-                target={item.open_in_new_tab ? "_blank" : undefined}
-                rel={item.open_in_new_tab ? "noopener noreferrer" : undefined}
-                className="hover:text-foreground hover:underline"
-              >
-                {item.label}
-              </a>
+    <footer className="border-t bg-secondary/40">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <Link href="/" className="inline-flex items-center gap-2">
+            {logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={logo}
+                alt={ws?.app_name || "__SPA__"}
+                className="h-8"
+              />
             ) : (
-              <Link
-                key={item.label}
-                href={href}
-                className="hover:text-foreground hover:underline"
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      ) : null}
-      {ws?.address ? (
-        <div
-          className="mb-3 [&_a]:underline"
-          // Website Settings "Address" is sanitized rich text from the site
-          dangerouslySetInnerHTML={{ __html: ws.address }}
-        />
-      ) : null}
-      <p>
-        {ws?.copyright
-          ? `© ${ws.copyright}`
-          : "__SPA__ — built on Frappe with Next.js, Tailwind CSS v4 and shadcn/ui."}
-      </p>
+              <span className="text-lg font-semibold">
+                {ws?.app_name || "__SPA__"}
+              </span>
+            )}
+          </Link>
+          {ws?.address ? (
+            <div
+              className="mt-4 text-sm text-muted-foreground [&_a]:underline"
+              // Website Settings "Address" is sanitized rich text from the site
+              dangerouslySetInnerHTML={{ __html: ws.address }}
+            />
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Built on Frappe with Next.js, Tailwind CSS and shadcn/ui.
+            </p>
+          )}
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold">Links</h3>
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+            {(topLevel.length
+              ? topLevel
+              : [
+                  { label: "Home", url: "/" },
+                  { label: "About", url: "/about" },
+                  { label: "Contact", url: "/contact" },
+                ]
+            ).map((item) => (
+              <li key={item.label}>
+                <ItemAnchor
+                  item={item}
+                  className="hover:text-foreground hover:underline"
+                >
+                  {item.label}
+                </ItemAnchor>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold">Get in touch</h3>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Want a portal like this for your business? We build ERPNext +
+            Next.js experiences.
+          </p>
+          <a
+            href="mailto:care@adimyra.com"
+            className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+          >
+            care@adimyra.com
+          </a>
+        </div>
+      </div>
+      <div className="border-t">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-6 py-5 text-center text-xs text-muted-foreground sm:flex-row sm:text-left">
+          <p>
+            ©{" "}
+            {ws?.copyright
+              ? ws.copyright
+              : `${year} ${ws?.app_name || "__SPA__"}. All rights reserved.`}
+          </p>
+          <p>
+            Crafted by{" "}
+            <a
+              href="mailto:care@adimyra.com"
+              className="font-medium text-primary hover:underline"
+            >
+              Adimyra Systems Private Limited
+            </a>{" "}
+            · ERPNext + Next.js
+          </p>
+        </div>
+      </div>
     </footer>
   );
 }

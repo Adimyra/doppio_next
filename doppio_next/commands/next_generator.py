@@ -240,7 +240,7 @@ class NextSPAGenerator:
 
     def install_dependencies(self):
         subprocess.run(
-            ["yarn", "add", "frappe-react-sdk", "socket.io-client", "motion"],
+            ["yarn", "add", "frappe-react-sdk", "socket.io-client", "motion", "next-themes"],
             cwd=self.spa_path,
             check=True,
             env=self.env,
@@ -308,15 +308,7 @@ class NextSPAGenerator:
                 continue
 
             # Skip example pages if not wanted
-            example_parts = {
-                "dashboard",
-                "projects",
-                "portal",
-                "profile",
-                "admin",
-                "app-header.tsx",
-                "stat-card.tsx",
-            }
+            example_parts = {"blog"}
             if not self.with_example and example_parts & set(rel.parts):
                 continue
 
@@ -355,6 +347,10 @@ class NextSPAGenerator:
                 "--font-heading: var(--font-sans);",
                 "--font-heading: var(--font-geist-sans);",
             )
+            # Brand palette overrides (win the cascade by coming last)
+            brand_css = TEMPLATES_DIR / "_variants" / "brand-theme.css"
+            if brand_css.exists() and "Brand theme" not in css:
+                css += brand_css.read_text()
             globals_css.write_text(css)
 
         # Guest API for Website Settings (branding/navigation) — lives in

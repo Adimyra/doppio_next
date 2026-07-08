@@ -1,33 +1,66 @@
-import Link from "next/link";
+"use client";
 
+import {
+  ArrowRight,
+  Blocks,
+  Code2,
+  Palette,
+  Rocket,
+  Server,
+  Wrench,
+} from "lucide-react";
+
+import {
+  FadeIn,
+  HoverLift,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/motion";
 import { SiteFooter, SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
-export const metadata = {
-  title: "About us | __SPA__",
-};
-
-const VALUES = [
+const SERVICES = [
   {
-    title: "Open by default",
+    icon: Server,
+    title: "ERPNext Implementation",
     description:
-      "Built on Frappe and open web standards — your data stays yours, with a full API underneath every screen.",
+      "End-to-end ERPNext rollouts — accounting, inventory, manufacturing, HR — tailored to how your business actually runs.",
   },
   {
-    title: "Fast where it matters",
+    icon: Code2,
+    title: "Custom Frappe Apps",
     description:
-      "A static-first frontend that loads instantly, backed by realtime updates when your data changes.",
+      "Purpose-built doctypes, workflows and automations on the Frappe framework, integrated cleanly with your ERP.",
   },
   {
-    title: "Designed for daily work",
+    icon: Palette,
+    title: "Next.js Frontends",
     description:
-      "Accessible, keyboard-friendly UI built with shadcn/ui, made for the people who use it every day.",
+      "Fast, beautiful customer portals and websites — like this one — wired directly to your Frappe backend.",
+  },
+  {
+    icon: Blocks,
+    title: "Integrations",
+    description:
+      "Payments, logistics, WhatsApp, e-commerce marketplaces — we connect ERPNext to the tools you rely on.",
+  },
+  {
+    icon: Wrench,
+    title: "Support & Maintenance",
+    description:
+      "Upgrades, performance tuning and day-to-day care for benches, sites and custom apps.",
+  },
+  {
+    icon: Rocket,
+    title: "Launch & Scale",
+    description:
+      "From a single-store pilot to multi-company operations — we grow the system as you grow.",
   },
 ];
 
@@ -36,60 +69,96 @@ export default function AboutPage() {
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-3xl flex-1 space-y-10 px-6 py-16">
-        <section className="space-y-4">
-          <h1 className="text-3xl font-bold tracking-tight">About us</h1>
-          <p className="text-lg text-muted-foreground">
-            We build __APP__ — business software on the Frappe/ERPNext
-            platform, with a modern web experience on top. This site is its
-            frontend: fast, secure and connected to the same backend that
-            powers our operations.
-          </p>
-          <p className="text-muted-foreground">
-            Replace this copy with your organization&apos;s real story: what
-            you do, who you serve, and why you built this product. This page
-            is a static route, so it costs nothing to serve and is indexed by
-            search engines out of the box.
-          </p>
-        </section>
-
-        <Separator />
-
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold">What we value</h2>
-          <div className="grid gap-4">
-            {VALUES.map((v) => (
-              <Card key={v.title}>
-                <CardHeader>
-                  <CardTitle className="text-base">{v.title}</CardTitle>
-                  <CardDescription>{v.description}</CardDescription>
-                </CardHeader>
-              </Card>
-            ))}
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] opacity-[0.06] dark:opacity-40" />
+          <div className="relative mx-auto max-w-6xl px-6 py-24 text-center sm:py-28">
+            <FadeIn>
+              <p className="text-sm font-semibold tracking-widest text-primary uppercase">
+                About this site
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.05}>
+              <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
+                Built by{" "}
+                <span className="bg-gradient-to-r from-[#4D6443] to-[#112921] bg-clip-text text-transparent dark:from-[#a9bba0] dark:to-[#4D6443]">
+                  Adimyra Systems Private Limited
+                </span>
+              </h1>
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+                This portal was created with ERPNext and Next.js — open-source
+                ERP power underneath, a modern web experience on top. We design
+                and build systems like this for businesses of every size.
+              </p>
+            </FadeIn>
+            <FadeIn delay={0.15}>
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+                <Button asChild size="lg">
+                  <a href="mailto:care@adimyra.com">
+                    Start a project
+                    <ArrowRight className="size-4" />
+                  </a>
+                </Button>
+              </div>
+            </FadeIn>
           </div>
         </section>
 
-        <Separator />
+        {/* Services */}
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <FadeIn>
+            <h2 className="text-center text-3xl font-bold tracking-tight">
+              What we do
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
+              Whatever you want to build on Frappe, ERPNext or the modern web —
+              we can do that here.
+            </p>
+          </FadeIn>
+          <StaggerContainer className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((service) => (
+              <StaggerItem key={service.title}>
+                <HoverLift>
+                  <Card className="h-full">
+                    <CardHeader>
+                      <div className="mb-2 inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                        <service.icon className="size-5 text-primary" />
+                      </div>
+                      <CardTitle>{service.title}</CardTitle>
+                      <CardDescription>{service.description}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </HoverLift>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        </section>
 
-        <section className="space-y-2">
-          <h2 className="text-xl font-semibold">Get in touch</h2>
-          <p className="text-muted-foreground">
-            Email us at{" "}
-            <a
-              href="mailto:hello@example.com"
-              className="font-medium underline underline-offset-4"
-            >
-              hello@example.com
-            </a>{" "}
-            — or open an issue from your{" "}
-            <Link
-              href="/portal"
-              className="font-medium underline underline-offset-4"
-            >
-              portal
-            </Link>{" "}
-            if you already have an account.
-          </p>
+        {/* CTA */}
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <FadeIn>
+            <Card className="border-0 bg-gradient-to-br from-[#112921] to-[#4D6443] text-white">
+              <CardHeader className="items-center px-8 py-14 text-center">
+                <CardTitle className="text-3xl">
+                  Let&apos;s build yours
+                </CardTitle>
+                <CardDescription className="max-w-xl text-white/80">
+                  Websites, portals, ERP rollouts, custom apps — tell us the
+                  idea and we&apos;ll take it from there.
+                </CardDescription>
+                <Button
+                  asChild
+                  size="lg"
+                  className="mt-6 bg-white text-[#112921] hover:bg-white/90"
+                >
+                  <a href="mailto:care@adimyra.com">care@adimyra.com</a>
+                </Button>
+              </CardHeader>
+            </Card>
+          </FadeIn>
         </section>
       </main>
 
