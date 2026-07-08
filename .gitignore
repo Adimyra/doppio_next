@@ -1,0 +1,11 @@
+*.pyc
+*.egg-info
+*.swp
+*.comp.js
+tags
+node_modules
+__pycache__
+.vscode
+.idea
+.DS_Store
+doppio_next/docs/current
