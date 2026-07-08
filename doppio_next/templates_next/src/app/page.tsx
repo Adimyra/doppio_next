@@ -3,11 +3,12 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Gauge,
+  Blocks,
   Globe,
-  ShieldCheck,
-  Smartphone,
+  LayoutTemplate,
+  ShoppingCart,
   Sparkles,
+  UserRound,
   Workflow,
 } from "lucide-react";
 
@@ -26,51 +27,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useWebsiteSettings } from "@/lib/website-settings";
 
-const FEATURES = [
+const SERVICES = [
   {
-    icon: ShieldCheck,
-    title: "Secure & Reliable",
+    icon: ShoppingCart,
+    title: "E-commerce Sites",
     description:
-      "Backed by Frappe's battle-tested authentication, roles and permissions.",
+      "Online stores with catalogs, carts and payments — inventory and billing flowing straight into ERPNext.",
   },
   {
-    icon: Gauge,
-    title: "Lightning Fast",
+    icon: LayoutTemplate,
+    title: "Business Portals",
     description:
-      "Statically exported Next.js pages served straight from your site — no extra servers.",
+      "Customer portals like this one — orders, invoices, support and account management in one clean interface.",
+  },
+  {
+    icon: UserRound,
+    title: "Personal & Company Sites",
+    description:
+      "Portfolios, landing pages and corporate websites — fast, responsive and beautifully designed.",
   },
   {
     icon: Workflow,
-    title: "ERPNext Inside",
+    title: "ERPNext & Frappe",
     description:
-      "Orders, invoices and support issues flow directly from your ERP in realtime.",
+      "Full ERP implementations — accounting, inventory, HR, manufacturing — tailored to how your business runs.",
   },
   {
-    icon: Smartphone,
-    title: "Responsive by Design",
+    icon: Blocks,
+    title: "Custom Functions & Apps",
     description:
-      "Every page adapts beautifully from phones to widescreen desktops.",
-  },
-  {
-    icon: Sparkles,
-    title: "Dark & Light Themes",
-    description:
-      "A polished theme system that follows your visitors' preference automatically.",
+      "Custom doctypes, workflows, automations and integrations — whatever function your business needs, we build it.",
   },
   {
     icon: Globe,
-    title: "Driven by Website Settings",
+    title: "More Pages, Anytime",
     description:
-      "Branding, menus and access rules are managed from your Frappe desk — no redeploys.",
+      "Need another page, a new feature or a redesign later? We keep building as your business grows.",
   },
 ];
 
 export default function Home() {
-  const ws = useWebsiteSettings();
-  const name = ws?.app_name || "__SPA__";
-
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -79,57 +76,76 @@ export default function Home() {
         {/* Hero */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] opacity-[0.06] dark:opacity-40" />
-          <div className="relative mx-auto max-w-6xl px-6 py-24 text-center sm:py-32">
+          <div className="relative mx-auto max-w-6xl px-6 py-20 text-center sm:py-28">
             <FadeIn>
               <span className="inline-flex items-center gap-1.5 rounded-full border bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
                 <Sparkles className="size-3.5 text-primary" />
-                Powered by ERPNext + Next.js
+                Adimyra Systems Private Limited
               </span>
             </FadeIn>
             <FadeIn delay={0.05}>
               <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
-                {name}
+                Whatever you imagine,
                 <span className="block bg-gradient-to-r from-[#4D6443] to-[#112921] bg-clip-text text-transparent dark:from-[#a9bba0] dark:to-[#4D6443]">
-                  your business, beautifully online.
+                  we design &amp; build it.
                 </span>
               </h1>
             </FadeIn>
             <FadeIn delay={0.1}>
               <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-                A modern customer portal connected to your ERP — track orders,
-                download invoices, raise support requests and manage your
-                account, all in one place.
+                Websites, e-commerce stores, customer portals, custom software
+                and full ERPNext implementations — pages, functions and
+                features exactly the way you want them. This very site is one
+                of our builds.
               </p>
             </FadeIn>
             <FadeIn delay={0.15}>
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                 <Button asChild size="lg">
-                  <Link href="/login">
-                    Get started
+                  <Link href="/contact">
+                    Contact us
                     <ArrowRight className="size-4" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="/contact">Talk to us</Link>
+                  <a
+                    href="https://adimyra.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Visit adimyra.com
+                  </a>
+                </Button>
+                <Button asChild size="lg" variant="ghost">
+                  <Link href="/login">Customer login</Link>
                 </Button>
               </div>
             </FadeIn>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="mx-auto max-w-6xl px-6 pb-24">
-          <StaggerContainer className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {FEATURES.map((feature) => (
-              <StaggerItem key={feature.title}>
+        {/* Services */}
+        <section className="mx-auto max-w-6xl px-6 pb-20 sm:pb-24">
+          <FadeIn>
+            <h2 className="text-center text-3xl font-bold tracking-tight">
+              What we can build for you
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">
+              All types of sites and software, powered by Frappe, ERPNext and
+              Next.js — designed, developed and cared for by Adimyra.
+            </p>
+          </FadeIn>
+          <StaggerContainer className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((service) => (
+              <StaggerItem key={service.title}>
                 <HoverLift>
                   <Card className="h-full">
                     <CardHeader>
                       <div className="mb-2 inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                        <feature.icon className="size-5 text-primary" />
+                        <service.icon className="size-5 text-primary" />
                       </div>
-                      <CardTitle>{feature.title}</CardTitle>
-                      <CardDescription>{feature.description}</CardDescription>
+                      <CardTitle>{service.title}</CardTitle>
+                      <CardDescription>{service.description}</CardDescription>
                     </CardHeader>
                   </Card>
                 </HoverLift>
@@ -139,28 +155,44 @@ export default function Home() {
         </section>
 
         {/* CTA banner */}
-        <section className="mx-auto max-w-6xl px-6 pb-24">
+        <section className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-24">
           <FadeIn>
             <Card className="overflow-hidden border-0 bg-gradient-to-br from-[#112921] to-[#4D6443] text-white">
               <CardContent className="flex flex-col items-center gap-6 px-8 py-14 text-center">
                 <h2 className="max-w-2xl text-3xl font-bold tracking-tight">
-                  Want a portal like this for your company?
+                  Tell us what you want — we&apos;ll build it.
                 </h2>
                 <p className="max-w-xl text-white/80">
-                  This experience was crafted by Adimyra Systems Private
-                  Limited with ERPNext and Next.js. Tell us what you need —
-                  we&apos;ll build it.
+                  Contact us, mail us, or visit our site. From a single landing
+                  page to a complete ERP-connected platform, Adimyra Systems
+                  Private Limited makes it real.
                 </p>
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-white text-[#112921] hover:bg-white/90"
-                >
-                  <a href="mailto:care@adimyra.com">
-                    care@adimyra.com
-                    <ArrowRight className="size-4" />
-                  </a>
-                </Button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="bg-white text-[#112921] hover:bg-white/90"
+                  >
+                    <a href="mailto:care@adimyra.com">
+                      care@adimyra.com
+                      <ArrowRight className="size-4" />
+                    </a>
+                  </Button>
+                  <Button
+                    asChild
+                    size="lg"
+                    variant="outline"
+                    className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                  >
+                    <a
+                      href="https://adimyra.com/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      adimyra.com/contact
+                    </a>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </FadeIn>
