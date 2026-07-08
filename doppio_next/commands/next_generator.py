@@ -254,8 +254,9 @@ class NextSPAGenerator:
         package_json_path = self.spa_path / "package.json"
         data = json.loads(package_json_path.read_text())
 
-        # Toolchain parity with Frappe/ERPNext v16 (Node 24, Yarn 1.22+)
-        data["engines"] = {"node": ">=24", "yarn": ">=1.22"}
+        # Node 20.9 is Next.js's floor and ships with Frappe v15 benches;
+        # v16 benches (Node 24) satisfy it too.
+        data["engines"] = {"node": ">=20.9", "yarn": ">=1.22"}
 
         data["scripts"]["dev"] = "next dev -p 8080"
         if self.serving == "static":

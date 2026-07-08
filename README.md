@@ -4,7 +4,13 @@ A Frappe app (in the spirit of [doppio](https://github.com/NagariaHussain/doppio
 
 ## Requirements
 
-Toolchain parity with **Frappe/ERPNext v16**: Python 3.14, Node.js 24 (LTS), Yarn 1.22+, MariaDB 11.8, pip 25.3+. The generated frontends declare `engines: { node: ">=24" }`. (For a v15 bench, relax `requires-python` in pyproject.toml to `>=3.10` and the frappe dependency pin — the code itself is 3.10-compatible.)
+Works on **Frappe/ERPNext v15 and v16** benches:
+
+- Python 3.10+ (v15 benches typically run 3.10–3.12; v16 runs 3.14)
+- Node.js 20.9+ (Next.js's minimum — v15 benches on Node 20 and v16 benches on Node 24 both work; Node 18 is too old for current `create-next-app`)
+- Yarn 1.22+
+
+The generated frontends declare `engines: { node: ">=20.9" }`.
 
 ## Run on Docker
 
