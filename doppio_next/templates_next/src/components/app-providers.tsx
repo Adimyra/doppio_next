@@ -11,6 +11,9 @@ function DynamicFavicon() {
   const ws = useWebsiteSettings();
 
   useEffect(() => {
+    if (ws?.app_name) {
+      document.title = ws.app_name;
+    }
     const icon = ws?.favicon || ws?.app_logo;
     if (!icon) return;
     // Next.js owns the default favicon link and resets plain href edits,

@@ -62,6 +62,46 @@ def get_website_settings():
     }
 
 
+@frappe.whitelist(allow_guest=True)
+def get_about_settings():
+    """Content for the /about page from Frappe's About Us Settings —
+    returns None when empty/disabled so the SPA uses its built-in copy."""
+    try:
+        about = frappe.get_cached_doc("About Us Settings")
+    except Exception:
+        return None
+    if about.get("is_disabled"):
+        return None
+    has_content = (
+        about.get("page_title")
+        or about.get("company_introduction")
+        or about.company_history
+        or about.team_members
+    )
+    if not has_content:
+        return None
+    return {
+        "page_title": about.get("page_title"),
+        "company_introduction": about.get("company_introduction"),
+        "company_history_heading": about.get("company_history_heading"),
+        "company_history": [
+            {"year": row.year, "highlight": row.highlight}
+            for row in about.company_history
+        ],
+        "team_members_heading": about.get("team_members_heading"),
+        "team_members_subtitle": about.get("team_members_subtitle"),
+        "team_members": [
+            {
+                "full_name": row.full_name,
+                "image_link": row.get("image_link"),
+                "bio": row.bio,
+            }
+            for row in about.team_members
+        ],
+        "footer": about.get("footer"),
+    }
+
+
 def _require_login():
     if frappe.session.user == "Guest":
         frappe.throw(_("Please log in first"), frappe.PermissionError)

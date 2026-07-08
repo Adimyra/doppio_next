@@ -480,20 +480,23 @@ class NextSPAGenerator:
                     return
                 ws = frappe.get_doc("Website Settings")
                 ws.home_page = self.spa_name
-                # Route Frappe's password-reset emails
-                # (/update-password?key=...) to the SPA's reset page.
-                if not any(
-                    (row.source or "").strip("/ ") == "update-password"
+                # Route Frappe's own pages to the SPA equivalents so
+                # each exists exactly once: reset-password emails, and
+                # the classic /about and /contact www pages.
+                existing = {
+                    (row.source or "").strip("/ ")
                     for row in ws.route_redirects
-                ):
-                    ws.append(
-                        "route_redirects",
-                        {
-                            "source": "update-password",
-                            "target": f"/{self.spa_name}/update-password",
-                            "forward_query_parameters": 1,
-                        },
-                    )
+                }
+                for source in ("update-password", "about", "contact"):
+                    if source not in existing:
+                        ws.append(
+                            "route_redirects",
+                            {
+                                "source": source,
+                                "target": f"/{self.spa_name}/{source}",
+                                "forward_query_parameters": 1,
+                            },
+                        )
                 ws.flags.ignore_permissions = True
                 ws.save()
 
