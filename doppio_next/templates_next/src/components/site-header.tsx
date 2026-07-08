@@ -91,12 +91,13 @@ function NavDropdown({
 }
 
 function NavbarSearch() {
+  const router = useRouter();
+
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const q = new FormData(e.currentTarget).get("q");
     if (typeof q === "string" && q.trim()) {
-      // Frappe's site-wide search page (outside the SPA basePath)
-      window.location.href = `/search?q=${encodeURIComponent(q.trim())}`;
+      router.push(`/search?q=${encodeURIComponent(q.trim())}`);
     }
   }
 
@@ -277,6 +278,23 @@ export function SiteHeader() {
         <div className="flex shrink-0 items-center gap-2">
           {ws?.navbar_search ? <NavbarSearch /> : null}
           <ModeToggle className={navGhost} />
+          {ws?.call_to_action && ws?.call_to_action_url ? (
+            <Button asChild size="sm">
+              {/^https?:\/\//.test(ws.call_to_action_url) ? (
+                <a
+                  href={ws.call_to_action_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {ws.call_to_action}
+                </a>
+              ) : (
+                <Link href={resolveItemUrl(ws.call_to_action_url).href}>
+                  {ws.call_to_action}
+                </Link>
+              )}
+            </Button>
+          ) : null}
           {isLoading ? (
             <Skeleton className="size-8 rounded-full" />
           ) : currentUser ? (

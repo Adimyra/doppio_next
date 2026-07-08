@@ -33,6 +33,8 @@ export interface WebsiteSettings {
   homepage_tagline?: string;
   homepage_cta_label?: string;
   homepage_cta_url?: string;
+  call_to_action?: string;
+  call_to_action_url?: string;
   navbar_style?: "Default" | "Plain" | "Gradient" | "";
   navbar_color?: string;
   navbar_gradient_from?: string;

@@ -49,6 +49,8 @@ def get_website_settings():
         "homepage_tagline": ws.get("homepage_tagline"),
         "homepage_cta_label": ws.get("homepage_cta_label"),
         "homepage_cta_url": ws.get("homepage_cta_url"),
+        "call_to_action": ws.get("call_to_action"),
+        "call_to_action_url": ws.get("call_to_action_url"),
         "navbar_style": ws.get("navbar_style"),
         "navbar_color": ws.get("navbar_color"),
         "navbar_gradient_from": ws.get("navbar_gradient_from"),
