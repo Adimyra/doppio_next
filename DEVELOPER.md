@@ -69,8 +69,8 @@ doppio_next/
 
 Appended once (guarded by the `# --- doppio_next website redirects` marker):
 
-- `website_redirects` — `/login`, `/update-password`, `/about`, `/contact` → SPA equivalents, `forward_query_parameters: 1` (so `?redirect-to=` and reset `?key=` survive). Merged with any pre-existing list via `globals().get(...)`.
-- `after_install` — `<app>.website_api.on_app_install`, merged the same way (handles both str and list forms).
+- `before_request` — `<app>.website_api.spa_redirects` sends `/login`, `/update-password`, `/about`, `/contact` (GET/HEAD only) to the SPA as a 302 with the query string preserved. **Not** `website_redirects`: Frappe's redirect rules cache by bare path (a bare `/login` visit poisons later `/login?redirect-to=...` requests) and v15 has no `forward_query_parameters` at all. Raises a werkzeug `HTTPException(response=redirect(...))` because `frappe.Redirect` is only understood inside the website renderer, while app.py returns HTTPException responses on every version.
+- `after_install` — `<app>.website_api.on_app_install`. Both hooks merge with any pre-existing values via `globals().get(...)` (str and list forms handled).
 
 ### Site setup (`website_api.setup_website_defaults`)
 
@@ -111,7 +111,7 @@ Form submissions reuse core Frappe endpoints where they exist: `frappe.www.conta
 
 ## Gotchas we hit (so you don't)
 
-- **Website redirect caching**: rules are cached in redis hash `website_redirects` *and* the computed `website_settings` value. After changing rules: `frappe.cache.delete_value("website_redirects")`, `delete_value("app_hooks")`, `clear_cache()` — and remember the dev web worker may hold stale module state (touch a .py file to trigger the reloader).
+- **Website redirect caching**: rules are cached in redis hash `website_redirects` (keyed by bare path — which both drops and poisons query strings; the reason redirects moved to `before_request`) *and* the computed `website_settings` value. After changing hooks: `frappe.cache.delete_value("website_redirects")`, `delete_value("app_hooks")`, `clear_cache()` — and remember the dev web worker may hold stale module state (touch a .py file to trigger the reloader).
 - **Another app claiming the same route** (e.g. an old doppio SPA named `frontend` with a `website_route_rules` catch-all) hijacks every deep link. Check all installed apps' hooks when deep links serve the wrong page.
 - **shadcn nova preset** emits `--font-sans: var(--font-sans)` (self-referencing) and applies `font-sans` on `<html>` while Next puts Geist variables on `<body>` → Times fallback. The generator patches both.
 - **Static export**: no SSR; unknown site-level URLs get Frappe's 404 (the SPA `not-found.tsx` covers in-app navigation); dynamic deep links need `generateStaticParams` or query params (`/blog/post?name=...` pattern).

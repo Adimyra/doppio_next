@@ -456,13 +456,16 @@ class NextSPAGenerator:
         block = f"""
 
 {self.HOOK_REDIRECT_MARKER} — Frappe's default pages live in the SPA now.
-# Guarded merge so an existing website_redirects list is preserved.
-website_redirects = (globals().get("website_redirects") or []) + [
-    {{"source": "/login", "target": "/{self.spa_name}/login", "forward_query_parameters": 1}},
-    {{"source": "/update-password", "target": "/{self.spa_name}/update-password", "forward_query_parameters": 1}},
-    {{"source": "/about", "target": "/{self.spa_name}/about", "forward_query_parameters": 1}},
-    {{"source": "/contact", "target": "/{self.spa_name}/contact", "forward_query_parameters": 1}},
-]
+# Done in before_request (not website_redirects): redirect rules cache
+# by bare path and drop query strings, and Frappe v15 has no
+# forward_query_parameters — this preserves ?key= / ?redirect-to= on
+# every version. Guarded merges keep any existing hooks intact.
+_prev_before_request = globals().get("before_request")
+before_request = (
+    [_prev_before_request]
+    if isinstance(_prev_before_request, str)
+    else list(_prev_before_request or [])
+) + ["{self.app}.website_api.spa_redirects"]
 
 # Configure each site on install: Adi Settings fields + website home page.
 _prev_after_install = globals().get("after_install")

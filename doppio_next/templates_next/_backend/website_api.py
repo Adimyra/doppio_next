@@ -685,3 +685,34 @@ def on_app_install():
         frappe.log_error(
             frappe.get_traceback(), "__APP__ SPA website setup failed"
         )
+
+
+# Frappe pages that now live in the SPA. Redirected in before_request
+# (not website_redirects) because Frappe's redirect rules cache by bare
+# path and drop query strings — and v15 has no forward_query_parameters
+# at all. This preserves ?key= / ?redirect-to= on every Frappe version.
+SPA_REDIRECT_ROUTES = frozenset(
+    {"login", "update-password", "about", "contact"}
+)
+
+
+def spa_redirects():
+    """before_request hook — send Frappe's default pages to the SPA.
+
+    Raises a werkzeug HTTPException carrying a 302 response:
+    frappe.Redirect is only understood inside the website renderer,
+    while app.py returns HTTPException responses on every Frappe
+    version (302 so browsers never permanently cache a /login hop)."""
+    request = getattr(frappe.local, "request", None)
+    if request is None or request.method not in ("GET", "HEAD"):
+        return
+    path = (request.path or "").strip("/")
+    if path not in SPA_REDIRECT_ROUTES:
+        return
+    from werkzeug.exceptions import HTTPException
+    from werkzeug.utils import redirect
+
+    location = f"/__SPA__/{path}"
+    if request.query_string:
+        location += "?" + frappe.safe_decode(request.query_string)
+    raise HTTPException(response=redirect(location, code=302))
