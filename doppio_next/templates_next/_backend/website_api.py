@@ -55,6 +55,8 @@ def get_website_settings():
         "footer_contact_text": ws.get("footer_contact_text"),
         "brand_primary_color": ws.get("brand_primary_color"),
         "brand_secondary_color": ws.get("brand_secondary_color"),
+        "require_terms": ws.get("require_terms"),
+        "terms_content": ws.get("terms_content"),
         "top_bar_items": items(ws.top_bar_items),
         "footer_items": items(ws.footer_items),
     }

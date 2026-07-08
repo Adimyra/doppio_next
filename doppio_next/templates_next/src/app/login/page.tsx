@@ -15,6 +15,14 @@ import { toast } from "sonner";
 
 import { AuthShell, PasswordInput } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
@@ -94,7 +102,43 @@ function LoginForm({ onForgot }: { onForgot: () => void }) {
   );
 }
 
+function TermsDialog({ content }: { content?: string }) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="font-medium text-primary hover:underline"
+        >
+          Terms &amp; Conditions
+        </button>
+      </DialogTrigger>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Terms &amp; Conditions</DialogTitle>
+        </DialogHeader>
+        <div className="max-h-[60vh] overflow-y-auto pr-2 text-sm">
+          {content ? (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none"
+              // Text Editor content from Website Settings (site managers only)
+              dangerouslySetInnerHTML={{ __html: content }}
+            />
+          ) : (
+            <p className="text-muted-foreground">
+              No terms have been published yet.
+            </p>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function SignupForm({ onDone }: { onDone: () => void }) {
+  const ws = useWebsiteSettings();
+  const requireTerms = !!ws?.require_terms;
+  const [agreed, setAgreed] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -105,6 +149,10 @@ function SignupForm({ onDone }: { onDone: () => void }) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (requireTerms && !agreed) {
+      toast.error("Please accept the Terms & Conditions to continue");
+      return;
+    }
     setSubmitting(true);
     try {
       const res = await signUp({
@@ -197,6 +245,22 @@ function SignupForm({ onDone }: { onDone: () => void }) {
           />
         </div>
       </div>
+      {requireTerms ? (
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="terms"
+            checked={agreed}
+            onCheckedChange={(value) => setAgreed(value === true)}
+            className="mt-0.5"
+          />
+          <p className="text-sm text-muted-foreground">
+            <Label htmlFor="terms" className="inline font-normal">
+              I agree to the
+            </Label>{" "}
+            <TermsDialog content={ws?.terms_content} />
+          </p>
+        </div>
+      ) : null}
       <Button type="submit" size="lg" disabled={submitting}>
         {submitting ? "Creating account..." : "Create Account"}
         <ArrowRight className="size-4" />

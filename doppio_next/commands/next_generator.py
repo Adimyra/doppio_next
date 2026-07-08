@@ -59,6 +59,8 @@ SHADCN_COMPONENTS = [
     "skeleton",
     "sonner",
     "sheet",
+    "dialog",
+    "checkbox",
 ]
 
 
@@ -667,6 +669,32 @@ class NextSPAGenerator:
                                 "description": "Lighter brand accent "
                                 "(default #4D6443). Both colors together "
                                 "re-theme the whole site.",
+                            },
+                            {
+                                "fieldname": "signup_terms_section",
+                                "fieldtype": "Section Break",
+                                "label": "Signup Terms",
+                                "insert_after": "brand_secondary_color",
+                            },
+                            {
+                                "fieldname": "require_terms",
+                                "fieldtype": "Check",
+                                "label": "Require Terms on Signup",
+                                "default": "0",
+                                "insert_after": "signup_terms_section",
+                                "description": 'Show an "I agree to the '
+                                'Terms & Conditions" checkbox on the '
+                                "signup form.",
+                            },
+                            {
+                                "fieldname": "terms_content",
+                                "fieldtype": "Text Editor",
+                                "label": "Terms & Conditions Content",
+                                "insert_after": "require_terms",
+                                "depends_on": "eval:doc.require_terms",
+                                "description": "Shown in the modal when "
+                                "a visitor clicks Terms & Conditions on "
+                                "signup.",
                             },
                         ]
                     }

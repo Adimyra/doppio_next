@@ -39,6 +39,8 @@ export interface WebsiteSettings {
   footer_contact_text?: string;
   brand_primary_color?: string;
   brand_secondary_color?: string;
+  require_terms?: 0 | 1;
+  terms_content?: string;
   top_bar_items?: TopBarItem[];
   footer_items?: TopBarItem[];
 }
