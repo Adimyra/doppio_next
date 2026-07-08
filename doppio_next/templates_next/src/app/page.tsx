@@ -6,6 +6,7 @@ import {
   Blocks,
   Globe,
   LayoutTemplate,
+  Mail,
   ShoppingCart,
   Sparkles,
   UserRound,
@@ -207,10 +208,10 @@ export default function Home() {
                     size="lg"
                     className="bg-white text-[#112921] hover:bg-white/90"
                   >
-                    <a href="mailto:care@adimyra.com">
-                      care@adimyra.com
+                    <Link href="/contact">
+                      Contact us
                       <ArrowRight className="size-4" />
-                    </a>
+                    </Link>
                   </Button>
                   <Button
                     asChild
@@ -218,15 +219,23 @@ export default function Home() {
                     variant="outline"
                     className="border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white"
                   >
-                    <a
-                      href="https://adimyra.com/contact"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      adimyra.com/contact
+                    <a href="mailto:care@adimyra.com">
+                      <Mail className="size-4" />
+                      Mail us
                     </a>
                   </Button>
                 </div>
+                <p className="text-sm text-white/60">
+                  or visit{" "}
+                  <a
+                    href="https://adimyra.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-white/90 underline-offset-2 hover:underline"
+                  >
+                    adimyra.com
+                  </a>
+                </p>
               </CardContent>
             </Card>
           </FadeIn>

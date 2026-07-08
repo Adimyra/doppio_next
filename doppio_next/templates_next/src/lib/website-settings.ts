@@ -30,6 +30,13 @@ export interface WebsiteSettings {
   homepage_tagline?: string;
   homepage_cta_label?: string;
   homepage_cta_url?: string;
+  navbar_style?: "Default" | "Plain" | "Gradient" | "";
+  navbar_color?: string;
+  navbar_gradient_from?: string;
+  navbar_gradient_to?: string;
+  navbar_text?: "Light" | "Dark" | "";
+  contact_email?: string;
+  footer_contact_text?: string;
   top_bar_items?: TopBarItem[];
   footer_items?: TopBarItem[];
 }

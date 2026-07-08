@@ -46,6 +46,13 @@ def get_website_settings():
         "homepage_tagline": ws.get("homepage_tagline"),
         "homepage_cta_label": ws.get("homepage_cta_label"),
         "homepage_cta_url": ws.get("homepage_cta_url"),
+        "navbar_style": ws.get("navbar_style"),
+        "navbar_color": ws.get("navbar_color"),
+        "navbar_gradient_from": ws.get("navbar_gradient_from"),
+        "navbar_gradient_to": ws.get("navbar_gradient_to"),
+        "navbar_text": ws.get("navbar_text"),
+        "contact_email": ws.get("contact_email"),
+        "footer_contact_text": ws.get("footer_contact_text"),
         "top_bar_items": items(ws.top_bar_items),
         "footer_items": items(ws.footer_items),
     }
@@ -257,6 +264,37 @@ def raise_issue(subject, description=None):
     doc.insert()
     frappe.db.commit()
     return {"name": doc.name}
+
+
+@frappe.whitelist(allow_guest=True)
+def subscribe(email):
+    """Footer newsletter signup — stores the address in the 'Website'
+    Email Group (shown when Website Settings hide_footer_signup is off)."""
+    from frappe.utils import validate_email_address
+
+    validate_email_address(email, throw=True)
+    if frappe.db.get_creation_count("Email Group Member", 60) > 300:
+        frappe.throw(_("Too many signups right now, please try again later"))
+
+    group = "Website"
+    if not frappe.db.exists("Email Group", group):
+        frappe.get_doc({"doctype": "Email Group", "title": group}).insert(
+            ignore_permissions=True
+        )
+    if frappe.db.exists(
+        "Email Group Member", {"email": email, "email_group": group}
+    ):
+        return _("You are already subscribed")
+    frappe.get_doc(
+        {
+            "doctype": "Email Group Member",
+            "email": email,
+            "email_group": group,
+            "unsubscribed": 0,
+        }
+    ).insert(ignore_permissions=True)
+    frappe.db.commit()
+    return _("Subscribed — thank you!")
 
 
 @frappe.whitelist(allow_guest=True)

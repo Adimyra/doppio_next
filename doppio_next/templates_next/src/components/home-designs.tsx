@@ -393,13 +393,19 @@ export function DemoBanner({ designKey }: { designKey: string }) {
         <p className="flex items-center gap-2 text-sm">
           <Eye className="size-4 text-primary" />
           <span>
-            Previewing the <strong>{design.name}</strong> homepage design —{" "}
-            <span className="text-muted-foreground">{design.description}</span>
+            Previewing the <strong>{design.name}</strong> design by Adimyra
+            Systems —{" "}
+            <span className="text-muted-foreground">
+              want it customized further? We can shape every section for you.
+            </span>
           </span>
         </p>
         <div className="flex items-center gap-2">
           <Button asChild variant="ghost" size="sm">
             <Link href="/#designs">All designs</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link href="/contact">Contact us</Link>
           </Button>
           {sessionUser?.desk_access ? (
             <Button size="sm" onClick={useThis} disabled={saving || applied}>

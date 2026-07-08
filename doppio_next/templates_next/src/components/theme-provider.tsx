@@ -42,13 +42,14 @@ function SiteDefaultTheme() {
 }
 
 /** Sun/moon button that flips between light and dark. */
-export function ModeToggle() {
+export function ModeToggle({ className }: { className?: string }) {
   const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <Button
       variant="ghost"
       size="icon"
+      className={className}
       aria-label="Toggle theme"
       onClick={() => {
         localStorage.setItem(USER_CHOICE_KEY, "1");

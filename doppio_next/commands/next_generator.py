@@ -575,6 +575,75 @@ class NextSPAGenerator:
                                 "description": "Where the main button "
                                 "goes, e.g. /login or https://...",
                             },
+                            {
+                                "fieldname": "navbar_footer_section",
+                                "fieldtype": "Section Break",
+                                "label": "Navbar & Footer",
+                                "insert_after": "homepage_cta_url",
+                            },
+                            {
+                                "fieldname": "navbar_style",
+                                "fieldtype": "Select",
+                                "label": "Navbar Style",
+                                "options": "Default\nPlain\nGradient",
+                                "default": "Default",
+                                "insert_after": "navbar_footer_section",
+                                "description": "Default follows the "
+                                "theme. Plain uses Navbar Color; Gradient "
+                                "blends From/To.",
+                            },
+                            {
+                                "fieldname": "navbar_color",
+                                "fieldtype": "Color",
+                                "label": "Navbar Color",
+                                "insert_after": "navbar_style",
+                                "depends_on": "eval:doc.navbar_style=="
+                                "'Plain'",
+                            },
+                            {
+                                "fieldname": "navbar_gradient_from",
+                                "fieldtype": "Color",
+                                "label": "Navbar Gradient From",
+                                "insert_after": "navbar_color",
+                                "depends_on": "eval:doc.navbar_style=="
+                                "'Gradient'",
+                            },
+                            {
+                                "fieldname": "navbar_gradient_to",
+                                "fieldtype": "Color",
+                                "label": "Navbar Gradient To",
+                                "insert_after": "navbar_gradient_from",
+                                "depends_on": "eval:doc.navbar_style=="
+                                "'Gradient'",
+                            },
+                            {
+                                "fieldname": "navbar_text",
+                                "fieldtype": "Select",
+                                "label": "Navbar Text",
+                                "options": "Light\nDark",
+                                "default": "Light",
+                                "insert_after": "navbar_gradient_to",
+                                "depends_on": "eval:doc.navbar_style!="
+                                "'Default'",
+                                "description": "Text color on the custom "
+                                "navbar background.",
+                            },
+                            {
+                                "fieldname": "contact_email",
+                                "fieldtype": "Data",
+                                "label": "Footer Contact Email",
+                                "insert_after": "navbar_text",
+                                "description": "Shown in the footer Get "
+                                "in touch column.",
+                            },
+                            {
+                                "fieldname": "footer_contact_text",
+                                "fieldtype": "Small Text",
+                                "label": "Footer Contact Text",
+                                "insert_after": "contact_email",
+                                "description": "Short line above the "
+                                "contact email in the footer.",
+                            },
                         ]
                     }
                 )

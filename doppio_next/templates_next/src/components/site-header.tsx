@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useFrappeAuth } from "frappe-react-sdk";
+import { useFrappeAuth, useFrappePostCall } from "frappe-react-sdk";
+import { toast } from "sonner";
 import { ChevronDown, LayoutDashboard, LogOut, Search, UserRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,14 +65,16 @@ function ItemAnchor({
 function NavDropdown({
   item,
   childItems,
+  className,
 }: {
   item: TopBarItem;
   childItems: TopBarItem[];
+  className?: string;
 }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" className={className}>
           {item.label}
           <ChevronDown className="size-3.5 opacity-60" />
         </Button>
@@ -184,8 +188,41 @@ export function SiteHeader() {
 
   const logo = brandImage(ws);
 
+  // Custom navbar background from Adi Settings (Plain color / Gradient)
+  const navbarBg =
+    ws?.navbar_style === "Plain" && ws.navbar_color
+      ? { background: ws.navbar_color }
+      : ws?.navbar_style === "Gradient" &&
+          ws.navbar_gradient_from &&
+          ws.navbar_gradient_to
+        ? {
+            background: `linear-gradient(90deg, ${ws.navbar_gradient_from}, ${ws.navbar_gradient_to})`,
+          }
+        : undefined;
+  const darkText = ws?.navbar_text === "Dark";
+  const navGhost = navbarBg
+    ? darkText
+      ? "text-[#112921] hover:bg-black/10 hover:text-[#112921]"
+      : "text-white hover:bg-white/15 hover:text-white"
+    : "";
+  const navActive = navbarBg
+    ? darkText
+      ? "bg-black/10"
+      : "bg-white/20"
+    : "bg-accent text-accent-foreground";
+
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur">
+    <header
+      style={navbarBg}
+      className={cn(
+        "sticky top-0 z-40 border-b",
+        navbarBg
+          ? darkText
+            ? "border-black/10 text-[#112921]"
+            : "border-white/15 text-white"
+          : "bg-background/80 backdrop-blur"
+      )}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3">
         <div className="flex min-w-0 items-center gap-6">
           <Link href="/" className="flex shrink-0 items-center gap-2">
@@ -206,7 +243,12 @@ export function SiteHeader() {
             {topLevel.map((item) => {
               const kids = childrenOf(item.label);
               return kids.length ? (
-                <NavDropdown key={item.label} item={item} childItems={kids} />
+                <NavDropdown
+                  key={item.label}
+                  item={item}
+                  childItems={kids}
+                  className={navGhost}
+                />
               ) : (
                 <Button
                   key={item.label}
@@ -214,8 +256,8 @@ export function SiteHeader() {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    pathname === resolveItemUrl(item.url).href &&
-                      "bg-accent text-accent-foreground"
+                    navGhost,
+                    pathname === resolveItemUrl(item.url).href && navActive
                   )}
                 >
                   <ItemAnchor item={item}>{item.label}</ItemAnchor>
@@ -226,7 +268,7 @@ export function SiteHeader() {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           {ws?.navbar_search ? <NavbarSearch /> : null}
-          <ModeToggle />
+          <ModeToggle className={navGhost} />
           {isLoading ? (
             <Skeleton className="size-8 rounded-full" />
           ) : currentUser ? (
@@ -251,8 +293,51 @@ export function SiteHeader() {
   );
 }
 
+function NewsletterForm() {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const { call: subscribe } = useFrappePostCall(
+    "__APP__.website_api.subscribe"
+  );
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const res = await subscribe({ email });
+      toast.success(res?.message || "Subscribed — thank you!");
+      setEmail("");
+    } catch {
+      toast.error("Could not subscribe, please try again");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="mt-6">
+      <p className="text-sm font-medium">Stay in the loop</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        Product updates and offers — no spam.
+      </p>
+      <div className="mt-2 flex gap-2">
+        <Input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          className="h-9 max-w-52"
+        />
+        <Button type="submit" size="sm" className="h-9" disabled={submitting}>
+          {submitting ? "..." : "Subscribe"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export function SiteFooter() {
-  const { currentUser, isLoading } = useFrappeAuth();
   const ws = useWebsiteSettings();
   const logo = ws?.footer_logo || brandImage(ws);
   const footerItems = ws?.footer_items ?? [];
@@ -283,13 +368,8 @@ export function SiteFooter() {
     },
   ];
 
-  const showSignupCta =
-    !isLoading &&
-    !currentUser &&
-    !!ws &&
-    !ws.hide_footer_signup &&
-    !ws.disable_signup &&
-    !ws.hide_login;
+  // Footer signup = newsletter subscribers (Email Group "Website")
+  const showNewsletter = !!ws && !ws.hide_footer_signup;
 
   return (
     <footer className="border-t bg-secondary/40">
@@ -320,14 +400,7 @@ export function SiteFooter() {
               Built on Frappe with Next.js, Tailwind CSS and shadcn/ui.
             </p>
           )}
-          {showSignupCta ? (
-            <div className="mt-6">
-              <p className="text-sm font-medium">New here?</p>
-              <Button asChild size="sm" className="mt-2">
-                <Link href="/login#signup">Create an account</Link>
-              </Button>
-            </div>
-          ) : null}
+          {showNewsletter ? <NewsletterForm /> : null}
         </div>
 
         {(columns.length ? columns : fallbackColumns).map((column) => (
@@ -351,14 +424,14 @@ export function SiteFooter() {
         <div>
           <h3 className="text-sm font-semibold">Get in touch</h3>
           <p className="mt-4 text-sm text-muted-foreground">
-            Want a portal like this for your business? We build ERPNext +
-            Next.js experiences.
+            {ws?.footer_contact_text ||
+              "Want a portal like this for your business? We build ERPNext + Next.js experiences."}
           </p>
           <a
-            href="mailto:care@adimyra.com"
+            href={`mailto:${ws?.contact_email || "care@adimyra.com"}`}
             className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
           >
-            care@adimyra.com
+            {ws?.contact_email || "care@adimyra.com"}
           </a>
         </div>
       </div>
