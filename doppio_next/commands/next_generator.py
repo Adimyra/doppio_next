@@ -183,7 +183,10 @@ class NextSPAGenerator:
 
         click.echo("🛠  Patching package.json scripts...")
         self.patch_spa_package_json()
-        self.patch_root_package_json()
+        spas = self.patch_root_package_json()
+
+        click.echo("🏠 Updating website home page...")
+        self.maybe_set_home_page(spas)
 
         prod_note = (
             "yarn build (exports into your app's public/ and www/)"
@@ -406,3 +409,63 @@ class NextSPAGenerator:
         scripts["dev"] = f"yarn dev:{self.spa_name}"
 
         root_package_json.write_text(json.dumps(data, indent=2) + "\n")
+        return spas
+
+    def maybe_set_home_page(self, spas):
+        """Point Website Settings.home_page at the SPA on the bench's
+        current site — but only when this is the app's only SPA, so a
+        second scaffold never silently steals the home page. Best
+        effort: scaffolding still succeeds without a usable site."""
+        if len(spas) > 1:
+            click.echo(
+                f"App has multiple SPAs ({', '.join(spas)}) — leaving "
+                "Website Settings home_page unchanged. Change it under "
+                "Desk → Website Settings if needed."
+            )
+            return
+
+        site = None
+        currentsite = Path("currentsite.txt")  # cwd is the sites dir
+        if currentsite.exists():
+            site = currentsite.read_text().strip() or None
+        if not site:
+            config = Path("common_site_config.json")
+            if config.exists():
+                site = json.loads(config.read_text()).get("default_site")
+        if not site:
+            click.echo(
+                "No default site found (bench use <site> to set one) — "
+                f"set '{self.spa_name}' as Home Page under Desk → "
+                "Website Settings."
+            )
+            return
+
+        try:
+            import frappe
+
+            frappe.init(site=site)
+            frappe.connect()
+            try:
+                if self.app not in frappe.get_installed_apps():
+                    click.echo(
+                        f"{self.app} is not installed on {site} — after "
+                        f"'bench --site {site} install-app {self.app}', set "
+                        f"'{self.spa_name}' as Home Page under Desk → "
+                        "Website Settings."
+                    )
+                    return
+                frappe.db.set_single_value(
+                    "Website Settings", "home_page", self.spa_name
+                )
+                frappe.db.commit()
+                click.echo(
+                    f"Website Settings home_page on {site} set to "
+                    f"'{self.spa_name}'"
+                )
+            finally:
+                frappe.destroy()
+        except Exception as e:
+            click.echo(
+                f"Could not update Website Settings on {site} ({e}) — set "
+                "it manually under Desk → Website Settings."
+            )
