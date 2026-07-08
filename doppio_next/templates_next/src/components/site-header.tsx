@@ -375,7 +375,7 @@ export function SiteFooter() {
     <footer className="border-t bg-secondary/40">
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2 lg:col-span-1">
-          <Link href="/" className="inline-flex items-center gap-2">
+          <Link href="/" className="inline-flex items-center gap-3">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -383,11 +383,10 @@ export function SiteFooter() {
                 alt={ws?.app_name || "__SPA__"}
                 className="h-9"
               />
-            ) : (
-              <span className="text-lg font-semibold">
-                {ws?.app_name || "__SPA__"}
-              </span>
-            )}
+            ) : null}
+            <span className="bg-gradient-to-r from-[var(--brand-deep)] to-[var(--brand-moss)] bg-clip-text text-xl font-bold tracking-tight text-transparent capitalize dark:from-[var(--brand-light)] dark:to-[var(--brand-moss)]">
+              {ws?.app_name || "__SPA__"}
+            </span>
           </Link>
           {ws?.address ? (
             <div
