@@ -463,6 +463,14 @@ website_redirects = (globals().get("website_redirects") or []) + [
     {{"source": "/about", "target": "/{self.spa_name}/about", "forward_query_parameters": 1}},
     {{"source": "/contact", "target": "/{self.spa_name}/contact", "forward_query_parameters": 1}},
 ]
+
+# Configure each site on install: Adi Settings fields + website home page.
+_prev_after_install = globals().get("after_install")
+after_install = (
+    [_prev_after_install]
+    if isinstance(_prev_after_install, str)
+    else list(_prev_after_install or [])
+) + ["{self.app}.website_api.on_app_install"]
 """
         hooks_path.write_text(content + block)
         click.echo(f"website_redirects appended to {hooks_path}")
@@ -504,223 +512,19 @@ website_redirects = (globals().get("website_redirects") or []) + [
             try:
                 if self.app not in frappe.get_installed_apps():
                     click.echo(
-                        f"{self.app} is not installed on {site} — after "
-                        f"'bench --site {site} install-app {self.app}', set "
-                        f"'{self.spa_name}' as Home Page under Desk → "
-                        "Website Settings."
+                        f"{self.app} is not installed on {site} yet — the "
+                        "after_install hook will configure the site "
+                        f"(home page + Adi Settings) when you run: bench "
+                        f"--site {site} install-app {self.app}"
                     )
                     return
-                ws = frappe.get_doc("Website Settings")
-                ws.home_page = self.spa_name
-                ws.flags.ignore_permissions = True
-                ws.save()
-
-                # "Adi Settings" tab on Website Settings with the
-                # default theme the SPA opens in (visitor toggle wins
-                # after they change it once).
-                from frappe.custom.doctype.custom_field.custom_field import (
-                    create_custom_fields,
-                )
-
-                last_field = frappe.get_meta(
-                    "Website Settings"
-                ).fields[-1].fieldname
-                create_custom_fields(
-                    {
-                        "Website Settings": [
-                            {
-                                "fieldname": "adi_settings_tab",
-                                "fieldtype": "Tab Break",
-                                "label": "Adi Settings",
-                                "insert_after": last_field,
-                            },
-                            {
-                                "fieldname": "default_website_theme",
-                                "fieldtype": "Select",
-                                "label": "Default Website Theme",
-                                "options": "Light\nDark",
-                                "default": "Light",
-                                "insert_after": "adi_settings_tab",
-                                "description": "Theme the website opens "
-                                "in. Visitors can still switch with the "
-                                "sun/moon toggle.",
-                            },
-                            {
-                                "fieldname": "homepage_design",
-                                "fieldtype": "Select",
-                                "label": "Homepage Design",
-                                "options": "classic\necommerce\nportal"
-                                "\npersonal\nerpnext\ncustom",
-                                "default": "classic",
-                                "insert_after": "default_website_theme",
-                                "description": "Design the homepage "
-                                "renders with. Preview them under /demos "
-                                "on the site.",
-                            },
-                            {
-                                "fieldname": "homepage_content_section",
-                                "fieldtype": "Section Break",
-                                "label": "Homepage Content",
-                                "insert_after": "homepage_design",
-                            },
-                            {
-                                "fieldname": "homepage_title",
-                                "fieldtype": "Data",
-                                "label": "Homepage Title",
-                                "insert_after": "homepage_content_section",
-                                "description": "Hero heading. Leave blank "
-                                "for the design default.",
-                            },
-                            {
-                                "fieldname": "homepage_tagline",
-                                "fieldtype": "Small Text",
-                                "label": "Homepage Tagline",
-                                "insert_after": "homepage_title",
-                                "description": "One or two lines under "
-                                "the heading.",
-                            },
-                            {
-                                "fieldname": "homepage_cta_label",
-                                "fieldtype": "Data",
-                                "label": "CTA Label",
-                                "insert_after": "homepage_tagline",
-                                "description": "Main button text, e.g. "
-                                "Shop now.",
-                            },
-                            {
-                                "fieldname": "homepage_cta_url",
-                                "fieldtype": "Data",
-                                "label": "CTA URL",
-                                "insert_after": "homepage_cta_label",
-                                "description": "Where the main button "
-                                "goes, e.g. /login or https://...",
-                            },
-                            {
-                                "fieldname": "navbar_footer_section",
-                                "fieldtype": "Section Break",
-                                "label": "Navbar & Footer",
-                                "insert_after": "homepage_cta_url",
-                            },
-                            {
-                                "fieldname": "navbar_style",
-                                "fieldtype": "Select",
-                                "label": "Navbar Style",
-                                "options": "Default\nPlain\nGradient",
-                                "default": "Default",
-                                "insert_after": "navbar_footer_section",
-                                "description": "Default follows the "
-                                "theme. Plain uses Navbar Color; Gradient "
-                                "blends From/To.",
-                            },
-                            {
-                                "fieldname": "navbar_color",
-                                "fieldtype": "Color",
-                                "label": "Navbar Color",
-                                "insert_after": "navbar_style",
-                                "depends_on": "eval:doc.navbar_style=="
-                                "'Plain'",
-                            },
-                            {
-                                "fieldname": "navbar_gradient_from",
-                                "fieldtype": "Color",
-                                "label": "Navbar Gradient From",
-                                "insert_after": "navbar_color",
-                                "depends_on": "eval:doc.navbar_style=="
-                                "'Gradient'",
-                            },
-                            {
-                                "fieldname": "navbar_gradient_to",
-                                "fieldtype": "Color",
-                                "label": "Navbar Gradient To",
-                                "insert_after": "navbar_gradient_from",
-                                "depends_on": "eval:doc.navbar_style=="
-                                "'Gradient'",
-                            },
-                            {
-                                "fieldname": "navbar_text",
-                                "fieldtype": "Select",
-                                "label": "Navbar Text",
-                                "options": "Light\nDark",
-                                "default": "Light",
-                                "insert_after": "navbar_gradient_to",
-                                "depends_on": "eval:doc.navbar_style!="
-                                "'Default'",
-                                "description": "Text color on the custom "
-                                "navbar background.",
-                            },
-                            {
-                                "fieldname": "contact_email",
-                                "fieldtype": "Data",
-                                "label": "Footer Contact Email",
-                                "insert_after": "navbar_text",
-                                "description": "Shown in the footer Get "
-                                "in touch column.",
-                            },
-                            {
-                                "fieldname": "footer_contact_text",
-                                "fieldtype": "Small Text",
-                                "label": "Footer Contact Text",
-                                "insert_after": "contact_email",
-                                "description": "Short line above the "
-                                "contact email in the footer.",
-                            },
-                            {
-                                "fieldname": "brand_colors_section",
-                                "fieldtype": "Section Break",
-                                "label": "Brand Colors",
-                                "insert_after": "footer_contact_text",
-                            },
-                            {
-                                "fieldname": "brand_primary_color",
-                                "fieldtype": "Color",
-                                "label": "Brand Primary Color",
-                                "insert_after": "brand_colors_section",
-                                "description": "Deep/dark brand color "
-                                "(default #112921). Drives buttons, "
-                                "gradients and dark surfaces everywhere.",
-                            },
-                            {
-                                "fieldname": "brand_secondary_color",
-                                "fieldtype": "Color",
-                                "label": "Brand Secondary Color",
-                                "insert_after": "brand_primary_color",
-                                "description": "Lighter brand accent "
-                                "(default #4D6443). Both colors together "
-                                "re-theme the whole site.",
-                            },
-                            {
-                                "fieldname": "signup_terms_section",
-                                "fieldtype": "Section Break",
-                                "label": "Signup Terms",
-                                "insert_after": "brand_secondary_color",
-                            },
-                            {
-                                "fieldname": "require_terms",
-                                "fieldtype": "Check",
-                                "label": "Require Terms on Signup",
-                                "default": "0",
-                                "insert_after": "signup_terms_section",
-                                "description": 'Show an "I agree to the '
-                                'Terms & Conditions" checkbox on the '
-                                "signup form.",
-                            },
-                            {
-                                "fieldname": "terms_content",
-                                "fieldtype": "Text Editor",
-                                "label": "Terms & Conditions Content",
-                                "insert_after": "require_terms",
-                                "depends_on": "eval:doc.require_terms",
-                                "description": "Shown in the modal when "
-                                "a visitor clicks Terms & Conditions on "
-                                "signup.",
-                            },
-                        ]
-                    }
-                )
+                frappe.get_attr(
+                    f"{self.app}.website_api.setup_website_defaults"
+                )()
                 frappe.db.commit()
                 click.echo(
-                    f"Website Settings on {site}: home_page = "
-                    f"'{self.spa_name}', Adi Settings tab added"
+                    f"Site {site} configured: Adi Settings fields created, "
+                    f"home_page -> '{self.spa_name}' (when it was unset)"
                 )
             finally:
                 frappe.destroy()
