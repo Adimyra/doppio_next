@@ -39,6 +39,8 @@ def get_website_settings():
         # not present on older Frappe versions
         "footer_logo": ws.get("footer_logo"),
         "footer_powered": ws.get("footer_powered"),
+        # custom field from the Adi Settings tab (may not exist yet)
+        "default_website_theme": ws.get("default_website_theme"),
         "top_bar_items": items(ws.top_bar_items),
         "footer_items": items(ws.footer_items),
     }

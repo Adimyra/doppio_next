@@ -24,6 +24,7 @@ export interface WebsiteSettings {
   address?: string;
   footer_logo?: string;
   footer_powered?: string;
+  default_website_theme?: "Light" | "Dark" | "";
   top_bar_items?: TopBarItem[];
   footer_items?: TopBarItem[];
 }

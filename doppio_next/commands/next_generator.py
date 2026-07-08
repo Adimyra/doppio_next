@@ -494,10 +494,45 @@ class NextSPAGenerator:
                     )
                 ws.flags.ignore_permissions = True
                 ws.save()
+
+                # "Adi Settings" tab on Website Settings with the
+                # default theme the SPA opens in (visitor toggle wins
+                # after they change it once).
+                from frappe.custom.doctype.custom_field.custom_field import (
+                    create_custom_fields,
+                )
+
+                last_field = frappe.get_meta(
+                    "Website Settings"
+                ).fields[-1].fieldname
+                create_custom_fields(
+                    {
+                        "Website Settings": [
+                            {
+                                "fieldname": "adi_settings_tab",
+                                "fieldtype": "Tab Break",
+                                "label": "Adi Settings",
+                                "insert_after": last_field,
+                            },
+                            {
+                                "fieldname": "default_website_theme",
+                                "fieldtype": "Select",
+                                "label": "Default Website Theme",
+                                "options": "Light\nDark",
+                                "default": "Light",
+                                "insert_after": "adi_settings_tab",
+                                "description": "Theme the website opens "
+                                "in. Visitors can still switch with the "
+                                "sun/moon toggle.",
+                            },
+                        ]
+                    }
+                )
                 frappe.db.commit()
                 click.echo(
                     f"Website Settings on {site}: home_page = "
-                    f"'{self.spa_name}', /update-password routed to the SPA"
+                    f"'{self.spa_name}', /update-password routed to the "
+                    "SPA, Adi Settings tab added"
                 )
             finally:
                 frappe.destroy()
