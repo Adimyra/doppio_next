@@ -1,13 +1,83 @@
 # Doppio Next
 
-A Frappe app (in the spirit of [doppio](https://github.com/NagariaHussain/doppio)) that scaffolds a **Next.js + TypeScript + Tailwind CSS v4 + shadcn/ui** frontend inside any custom Frappe/ERPNext app — wired to the Frappe backend with **frappe-react-sdk**, a typed API client, cookie auth, and realtime (socket.io).
+A Frappe app (in the spirit of [doppio](https://github.com/NagariaHussain/doppio)) that scaffolds a complete, production-ready **Next.js + TypeScript + Tailwind CSS v4 + shadcn/ui** customer portal inside any custom Frappe/ERPNext app — wired to the Frappe backend with **frappe-react-sdk**, cookie auth, realtime (socket.io), and driven end-to-end by **Website Settings** and **Portal Settings**, so site managers control branding, navigation, theming and content from the Desk with no redeploys.
+
+Built by [Adimyra Systems Private Limited](mailto:care@adimyra.com) · ERPNext + Next.js.
+
+## Features
+
+**Everything below ships from a single `bench add-next-spa` command.**
+
+### Driven by Website Settings (no rebuilds)
+
+- **Branding** — app logo / brand image in the navbar, auth pages and footer; favicon set at runtime (falls back to the app logo); app name used across heroes and titles.
+- **Navigation** — Top Bar Items render the navbar (with `parent_label` dropdown grouping); Footer Items render grouped footer columns where a parent label is a heading, never a link.
+- **Auth visibility** — `hide_login` hides the login/signup buttons, `disable_signup` removes all signup UI (enforced server-side too), `navbar_search` adds a search box (submits to Frappe's `/search`), `show_footer_on_login` shows the footer on auth pages.
+- **Footer** — `footer_logo`, `address` (line breaks preserved), `copyright`, `footer_powered`, plus a newsletter form ("Stay in the loop") gated on `hide_footer_signup` that stores subscribers in the **Website** Email Group.
+
+### The "Adi Settings" tab (custom fields created at scaffold time)
+
+- **Default Website Theme** — Light or Dark; the site opens in it, a visitor's own sun/moon toggle choice wins after they change it once.
+- **Homepage Design** — switch the homepage between six designs (see below) from the Desk.
+- **Homepage Content** — minimal overrides: Title, Tagline, CTA Label, CTA URL; every design uses them.
+- **Navbar Style** — Default (theme-aware), Plain (one color) or Gradient (from/to colors) with Light/Dark text.
+- **Footer Contact** — email + short text for the footer "Get in touch" column.
+- **Brand Colors** — two color pickers (defaults `#112921` deep + `#4D6443` moss). The full palette — buttons, gradients, tints, dark-mode surfaces, both themes — derives from these at runtime. Two colors re-theme the entire site.
+
+### Switchable homepage designs + live demos
+
+Six homepage designs, previewable at `/demos/<key>` with a banner and a **"Use this as homepage"** button (visible to desk users; the API enforces Website Settings write permission):
+
+| Key | Name | Style |
+|---|---|---|
+| `classic` | Landing | Full marketing landing (hero, services grid linking to the demos, CTA banner) |
+| `ecommerce` | Shopfront | Store hero + product showcase |
+| `portal` | Portal | Account-first hero with stat cards |
+| `personal` | Studio | Minimal personal/portfolio hero |
+| `erpnext` | Enterprise | ERP pitch with a metrics panel |
+| `custom` | Spark | Bold gradient hero with feature chips |
+
+### Auth, in a split-screen shell
+
+Login, tab-style Sign Up, Forgot password and Reset password share one `AuthShell` (brand gradient panel + form side, responsive):
+
+- **Login** — email/password with show/hide toggle; redirects to My Account.
+- **Sign Up** — first/last name, email and **phone with dial-code select**, via a custom `sign_up` API that mirrors Frappe's flow (same `disable_signup` enforcement and return codes) while storing the mobile number.
+- **Forgot** (`/login#forgot`) — Frappe's standard reset email.
+- **Reset** (`/update-password?key=...`) — the generator adds a Website Route Redirect (query params forwarded) so Frappe's reset emails land on the SPA page.
+
+### My Account (`/my-account`)
+
+- Sidebar navigation (horizontal pills on mobile): Profile + one section per **Portal Settings** menu item the user's roles allow.
+- Profile is read-only until **Edit profile** (first/last name, mobile, phone).
+- Generic section tables adapt per doctype (title/status/total columns appear only when the doctype has them); rows are scoped to the logged-in user via ERPNext's customer/supplier contact linkage, falling back to `raised_by`/`owner`.
+- The Issues section includes a raise-issue form.
+- Navbar shows an avatar menu: My Account, **Desk** (`/app`, System Users only), Log out.
+
+### Theming & UX
+
+- Dark/light mode everywhere (next-themes, class strategy) with a navbar toggle.
+- Brand-variable palette (`--brand-*`) — all gradients and tokens derive from the two Adi Settings colors.
+- Motion animations (`motion/react`): page-enter transition + `FadeIn`, `StaggerContainer`/`StaggerItem`, `HoverLift`, `AnimatedNumber` primitives.
+- Fully responsive; equal-height card grids; sticky translucent (or custom-colored) navbar.
+
+### Backend API installed into the host app
+
+`<app>/website_api.py` (guest-safe where appropriate): `get_website_settings`, `get_session_user`, `update_my_profile`, `get_portal_sections`, `get_portal_list`, `raise_issue`, `sign_up` (with mobile), `subscribe` (newsletter), `set_homepage_design`. The SPA works without doppio_next installed on the production site.
+
+### Generator niceties
+
+- **Node auto-resolution** — if the Node on PATH is older than 20.9, the generator finds and uses the newest suitable version under nvm automatically (clear instructions if none exists).
+- **shadcn CLI drift handling** — pins the Radix library and the preset non-interactively across CLI majors, and verifies `components.json` actually exists.
+- **Bench ports baked in** — the dev proxy and realtime socket use `webserver_port`/`socketio_port` from `common_site_config.json`, not hardcoded 8000/9000.
+- **Site setup on scaffold** — sets Website Settings `home_page` to the SPA (only when it's the app's sole SPA), adds the `/update-password` redirect, and creates all Adi Settings custom fields.
 
 ## Requirements
 
 Works on **Frappe/ERPNext v15 and v16** benches:
 
 - Python 3.10+ (v15 benches typically run 3.10–3.12; v16 runs 3.14)
-- Node.js 20.9+ (Next.js's minimum — v15 benches on Node 20 and v16 benches on Node 24 both work; Node 18 is too old for current `create-next-app`)
+- Node.js 20.9+ — or just have one installed under nvm; the generator picks it up automatically
 - Yarn 1.22+
 
 The generated frontends declare `engines: { node: ">=20.9" }`.
@@ -35,33 +105,28 @@ bench get-app <this-repo-url>   # or copy this folder into apps/ and `bench setu
 
 ```bash
 bench add-next-spa --app <your-app> --name frontend
-# --no-example              skip the sample dashboard
+# --no-example              skip the sample blog pages
 # --serving static          (default) exported + served by Frappe, no Node in prod
 # --serving standalone      Node server with full SSR/API routes/server actions
 ```
 
 What it does:
 
-1. Runs `create-next-app@latest` (App Router, TypeScript, Tailwind v4, src dir, yarn) inside `apps/<your-app>/<name>`
-2. Adds `frappe-react-sdk` and `socket.io-client`
-3. Runs `shadcn@latest init` + adds button, card, input, label, table, badge, avatar, separator, dropdown-menu, tooltip, skeleton, sonner
-4. Overlays integration templates: `next.config.ts` (dev proxy + static export), `src/lib/frappe.ts` (typed `frappeCall`), `src/lib/auth.ts`, `src/lib/socket.ts`, `src/lib/csrf.ts`, `AppProviders` (FrappeProvider), a shadcn login page, and example pages (all behind a shared `AppHeader` nav + auth guard):
-   - `/dashboard` — doc counts + ToDo table with realtime refresh
-   - `/projects` — project monitoring over the ERPNext `Project` doctype (status, priority, progress bars, overdue detection, realtime)
-   - `/portal` — "my stuff" for the logged-in user: support Issues they raised + open ToDos allocated to them
-   - `/profile` — view + edit the logged-in User document (`useFrappeUpdateDoc`)
-   - `/admin` — admin panel with its own sidebar layout (`AdminShell`: fixed sidebar on desktop, Sheet drawer on mobile): overview stats + Activity Log, user management (search, enable/disable with protected Administrator/Guest rows), and Error Log viewer. Access is gated by a REST permission probe — Frappe's server-side permissions are the real gate, non-admins see an "Access denied" card. Design spec: `docs/admin-panel-spec.md`.
-
-   Pages that use ERPNext doctypes (`Project`, `Issue`) degrade to a friendly hint on Frappe-only sites.
-
-   Animations are powered by **Motion** (Framer Motion's successor, `motion/react`): a global page-enter transition (`src/app/template.tsx`) plus reusable primitives in `src/components/motion.tsx` — `FadeIn`, `StaggerContainer`/`StaggerItem`, `HoverLift`, and `AnimatedNumber` (spring count-up used by the stat cards). The landing hero/feature grid, login card, and dashboard/projects stats all use them; compose the same primitives in your own pages.
-
-   Plus public website pages (no login required, shared `SiteHeader`/`SiteFooter`):
-   - `/` — landing page with hero and feature cards
-   - `/about` — about-us page (static route, replace the placeholder copy)
-   - `/blog` + `/blog/post?name=...` — blog list and detail over Frappe's built-in `Blog Post` doctype; detail uses a query param so new posts need no rebuild in static mode (`@tailwindcss/typography` is installed for rendered post HTML). Guest REST access to Blog Post must be granted for a public blog; otherwise it shows a hint.
-5. Patches `package.json` scripts (SPA + app root) so `bench build` works
-6. `scripts/copy-export.mjs` handles production export into your app
+1. Resolves a Node ≥ 20.9 (PATH or nvm) and runs `create-next-app@latest` (App Router, TypeScript, Tailwind v4, src dir, yarn) inside `apps/<your-app>/<name>`
+2. Adds `frappe-react-sdk`, `socket.io-client`, `motion`, `next-themes`
+3. Runs `shadcn@latest init` (Radix, non-interactive) + adds button, card, input, label, table, badge, avatar, separator, dropdown-menu, tooltip, skeleton, sonner, sheet
+4. Overlays the integration templates and pages:
+   - `/` — homepage rendering the design chosen in Adi Settings (classic landing by default)
+   - `/demos/{ecommerce,portal,personal,erpnext,custom}` — design previews with the "Use this" switch
+   - `/about` — Adimyra Systems showcase page
+   - `/contact` — contact page (info cards + mail form)
+   - `/login` — split-screen Login / Sign Up tabs + forgot-password mode
+   - `/update-password` — reset page targeted by Frappe's reset emails
+   - `/my-account` — Portal Settings-driven account area
+   - `/blog` + `/blog/post?name=...` — blog over Frappe's `Blog Post` doctype (skipped with `--no-example`)
+5. Installs `<app>/website_api.py` into the host app (never overwrites your edits)
+6. Patches `package.json` scripts (SPA + app root) so `bench build` works, appends the brand palette to `globals.css`
+7. On the bench's current site: sets `home_page`, adds the reset-password redirect, creates the Adi Settings custom fields
 
 ## Naming and multiple frontends
 
@@ -74,7 +139,9 @@ bench add-next-spa --app myapp --name shop
 bench add-next-spa --app myapp --name crm
 ```
 
-Each gets its own folder (`apps/myapp/shop`, `apps/myapp/crm`), route (`/shop`, `/crm`), asset path (`/assets/myapp/shop/...`), and `www` entries. The app root `package.json` gets namespaced scripts (`build:shop`, `build:crm`, `dev:crm`, ...); the aggregate `build`/`postinstall` chain all frontends so `bench build --app myapp` builds everything. `yarn dev` runs the most recently added frontend — run `yarn dev:shop` etc. for a specific one (give each a distinct port, e.g. `yarn dev:shop -p 8081`).
+Each gets its own folder (`apps/myapp/shop`, `apps/myapp/crm`), route (`/shop`, `/crm`), asset path (`/assets/myapp/shop/...`), and `www` entries. The app root `package.json` gets namespaced scripts (`build:shop`, `build:crm`, `dev:crm`, ...); the aggregate `build`/`postinstall` chain all frontends so `bench build --app myapp` builds everything. `yarn dev` runs the most recently added frontend — run `yarn dev:shop` etc. for a specific one (give each a distinct port, e.g. `yarn dev:shop -p 8081`). When multiple SPAs exist, the generator leaves `home_page` untouched so a second scaffold never steals the homepage.
+
+Also make sure no other installed app claims the same route — an old doppio SPA with a `website_route_rules` catch-all for the same name will hijack deep links.
 
 ## Development
 
@@ -84,7 +151,7 @@ yarn dev
 # → http://localhost:8080/<name>
 ```
 
-The dev server proxies `/api`, `/assets`, `/files`, `/private` to the bench server on `:8000`. Realtime connects directly to `:9000`.
+The dev server proxies `/api`, `/assets`, `/files`, `/private` to the bench web server and connects realtime to the bench's socketio port (both read from `common_site_config.json` at scaffold time).
 
 CSRF in dev: either log in through the app (cookies carry the session) or set `allow_cors` / `ignore_csrf: 1` in your site config while developing.
 
@@ -102,6 +169,8 @@ This runs `next build` (static export with `basePath: /<name>` and `assetPrefix:
 - other pages → `<app>/www/<name>/<page>.html` (served at `/<name>/<page>`)
 
 A `window.csrf_token = '{{ frappe.session.csrf_token }}'` snippet is injected into every HTML entry; Frappe renders `www/*.html` through Jinja, so the token resolves per request and frappe-react-sdk picks it up automatically.
+
+`bench build --app <your-app>` runs the same build through the root `package.json` scripts.
 
 ## Constraints of static export — and how to fix each one
 
@@ -142,7 +211,7 @@ export default async function ItemPage({
 }
 ```
 
-Each `id` gets its own HTML in `www/`, so deep links work. Runs at build time on your machine, so it can hit `:8000` freely (use an API key header if the doctype isn't public). For unbounded/user-generated ids, either switch to query params (`/item?id=X`, always works in static mode) or use standalone mode, where dynamic segments SSR naturally.
+Each `id` gets its own HTML in `www/`, so deep links work. Runs at build time on your machine, so it can hit the bench freely (use an API key header if the doctype isn't public). For unbounded/user-generated ids, either switch to query params (`/item?id=X`, always works in static mode) or use standalone mode, where dynamic segments SSR naturally.
 
 **Other static-mode notes**
 
@@ -159,7 +228,7 @@ yarn tsc --noEmit   # type-check everything
 yarn build          # full production build
 ```
 
-If `tsc` flags an API drift (e.g. frappe-react-sdk's `login()` signature changed), the fix will be a one-liner in `src/app/login/page.tsx` or `src/components/app-providers.tsx`.
+If `tsc` flags an API drift (e.g. frappe-react-sdk's `login()` signature changed), the fix will be a one-liner in the affected template page.
 
 ## Structure
 
@@ -174,15 +243,17 @@ doppio_next/
 │   └── templates_next/          # files overlaid onto the scaffolded app
 │       ├── next.config.ts
 │       ├── scripts/copy-export.mjs
+│       ├── _backend/website_api.py   # installed into the host app
+│       ├── _variants/                 # brand-theme.css, standalone config
 │       └── src/
-│           ├── lib/{frappe,auth,socket}.ts
-│           ├── components/app-providers.tsx
-│           └── app/{layout,page}.tsx, login/, dashboard/
+│           ├── lib/{frappe,auth,socket,csrf,website-settings,use-require-auth}.ts
+│           ├── components/{app-providers,theme-provider,site-header,auth-shell,home-designs,motion}.tsx
+│           └── app/{layout,page}.tsx, login/, update-password/, my-account/,
+│               about/, contact/, demos/, blog/
 ```
 
-`__APP__` / `__SPA__` placeholders in templates are replaced at scaffold time.
+`__APP__` / `__SPA__` / `__WEB_PORT__` / `__SOCKET_PORT__` placeholders in templates are replaced at scaffold time.
 
 ## License
 
 MIT
-# doppio_next
