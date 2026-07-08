@@ -92,9 +92,9 @@ function EcommerceDesign() {
     ctaUrl: "/login",
   });
   const products = [
-    { name: "Signature Item", price: "₹2,499", tone: "from-[#4D6443]/80 to-[#112921]" },
-    { name: "Best Seller", price: "₹1,299", tone: "from-[#7d9472]/80 to-[#4D6443]" },
-    { name: "New Arrival", price: "₹3,999", tone: "from-[#112921] to-[#35492f]" },
+    { name: "Signature Item", price: "₹2,499", tone: "from-[var(--brand-moss)] to-[var(--brand-deep)]" },
+    { name: "Best Seller", price: "₹1,299", tone: "from-[var(--brand-soft)] to-[var(--brand-moss)]" },
+    { name: "New Arrival", price: "₹3,999", tone: "from-[var(--brand-deep)] to-[var(--brand-mid)]" },
   ];
 
   return (
@@ -157,7 +157,7 @@ function PortalDesign() {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] opacity-[0.07] dark:opacity-50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-deep)] via-[var(--brand-mid)] to-[var(--brand-moss)] opacity-[0.07] dark:opacity-50" />
       <div className="relative mx-auto max-w-4xl px-6 py-24 text-center lg:py-32">
         <FadeIn>
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
@@ -260,7 +260,7 @@ function ErpnextDesign() {
         </div>
       </FadeIn>
       <FadeIn delay={0.1}>
-        <Card className="overflow-hidden border-0 bg-gradient-to-br from-[#112921] to-[#4D6443] text-white">
+        <Card className="overflow-hidden border-0 bg-gradient-to-br from-[var(--brand-deep)] to-[var(--brand-moss)] text-white">
           <CardContent className="grid gap-6 p-8">
             <p className="text-sm font-medium text-white/70">This quarter</p>
             {[
@@ -274,7 +274,7 @@ function ErpnextDesign() {
                   <p className="text-xl font-bold">{value}</p>
                 </div>
                 <div className="mt-2 h-1.5 rounded-full bg-white/15">
-                  <div className={`h-1.5 rounded-full bg-[#a9bba0] ${width}`} />
+                  <div className={`h-1.5 rounded-full bg-[var(--brand-light)] ${width}`} />
                 </div>
               </div>
             ))}
@@ -298,7 +298,7 @@ function CustomDesign() {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="absolute -top-24 left-1/2 size-[480px] -translate-x-1/2 rounded-full bg-gradient-to-br from-[#4D6443] to-[#112921] opacity-20 blur-3xl dark:opacity-40" />
+      <div className="absolute -top-24 left-1/2 size-[480px] -translate-x-1/2 rounded-full bg-gradient-to-br from-[var(--brand-moss)] to-[var(--brand-deep)] opacity-20 blur-3xl dark:opacity-40" />
       <div className="relative mx-auto max-w-4xl px-6 py-24 text-center lg:py-32">
         <FadeIn>
           <span className="inline-flex items-center gap-1.5 rounded-full border bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
@@ -306,7 +306,7 @@ function CustomDesign() {
             Custom software
           </span>
           <h1 className="mx-auto mt-6 max-w-2xl text-5xl font-bold tracking-tight sm:text-6xl">
-            <span className="bg-gradient-to-r from-[#4D6443] via-[#7d9472] to-[#112921] bg-clip-text text-transparent dark:from-[#a9bba0] dark:via-[#7d9472] dark:to-[#4D6443]">
+            <span className="bg-gradient-to-r from-[var(--brand-moss)] via-[var(--brand-soft)] to-[var(--brand-deep)] bg-clip-text text-transparent dark:from-[var(--brand-light)] dark:via-[var(--brand-soft)] dark:to-[var(--brand-moss)]">
               {content.title}
             </span>
           </h1>

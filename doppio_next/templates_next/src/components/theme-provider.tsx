@@ -20,9 +20,82 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <SiteDefaultTheme />
+      <BrandTheme />
       {children}
     </NextThemesProvider>
   );
+}
+
+/* ------------------------------------------------------------------ */
+/* Brand colors from Adi Settings                                      */
+/* ------------------------------------------------------------------ */
+
+function hexToRgb(hex: string): [number, number, number] | null {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return null;
+  const n = parseInt(match[1], 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+/** Mix `a` toward `b` by t (0..1) and return a hex color. */
+function mix(a: string, b: string, t: number): string {
+  const ca = hexToRgb(a);
+  const cb = hexToRgb(b);
+  if (!ca || !cb) return a;
+  const channel = (i: number) => Math.round(ca[i] + (cb[i] - ca[i]) * t);
+  return (
+    "#" +
+    [0, 1, 2]
+      .map((i) => channel(i).toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+/** Derive the full --brand-* palette from the two Adi Settings colors. */
+function buildBrandCss(deep: string, moss: string): string {
+  const vars = {
+    "--brand-deep": deep,
+    "--brand-moss": moss,
+    "--brand-mid": mix(deep, moss, 0.5),
+    "--brand-soft": mix(moss, "#ffffff", 0.3),
+    "--brand-light": mix(moss, "#ffffff", 0.55),
+    "--brand-tint": mix(moss, "#ffffff", 0.88),
+    "--brand-tint-2": mix(moss, "#ffffff", 0.92),
+    "--brand-muted": mix(moss, "#ffffff", 0.94),
+    "--brand-muted-fg": mix(deep, "#ffffff", 0.35),
+    "--brand-dark-bg": mix(deep, "#000000", 0.55),
+    "--brand-dark-card": mix(deep, "#000000", 0.45),
+    "--brand-dark-secondary": mix(deep, "#000000", 0.28),
+    "--brand-dark-accent": mix(moss, "#000000", 0.62),
+    "--brand-dark-fg": mix(moss, "#ffffff", 0.9),
+    "--brand-dark-muted-fg": mix(moss, "#ffffff", 0.45),
+  };
+  const body = Object.entries(vars)
+    .map(([key, value]) => `${key}: ${value};`)
+    .join(" ");
+  return `:root { ${body} }`;
+}
+
+/** Injects Adi Settings → Brand Colors as CSS variable overrides.
+ *  Every themed token (buttons, gradients, accents, dark mode
+ *  surfaces) derives from --brand-*, so two colors restyle the site. */
+function BrandTheme() {
+  const ws = useWebsiteSettings();
+
+  useEffect(() => {
+    const deep = ws?.brand_primary_color;
+    const moss = ws?.brand_secondary_color;
+    if (!hexToRgb(deep ?? "") || !hexToRgb(moss ?? "")) return;
+    let el = document.getElementById("brand-theme-overrides");
+    if (!el) {
+      el = document.createElement("style");
+      el.id = "brand-theme-overrides";
+      document.head.appendChild(el);
+    }
+    el.textContent = buildBrandCss(deep!, moss!);
+  }, [ws]);
+
+  return null;
 }
 
 /** Applies Website Settings → Adi Settings → Default Website Theme

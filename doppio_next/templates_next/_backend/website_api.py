@@ -53,6 +53,8 @@ def get_website_settings():
         "navbar_text": ws.get("navbar_text"),
         "contact_email": ws.get("contact_email"),
         "footer_contact_text": ws.get("footer_contact_text"),
+        "brand_primary_color": ws.get("brand_primary_color"),
+        "brand_secondary_color": ws.get("brand_secondary_color"),
         "top_bar_items": items(ws.top_bar_items),
         "footer_items": items(ws.footer_items),
     }

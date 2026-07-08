@@ -202,7 +202,7 @@ export function SiteHeader() {
   const darkText = ws?.navbar_text === "Dark";
   const navGhost = navbarBg
     ? darkText
-      ? "text-[#112921] hover:bg-black/10 hover:text-[#112921]"
+      ? "text-[var(--brand-deep)] hover:bg-black/10 hover:text-[var(--brand-deep)]"
       : "text-white hover:bg-white/15 hover:text-white"
     : "";
   const navActive = navbarBg
@@ -218,7 +218,7 @@ export function SiteHeader() {
         "sticky top-0 z-40 border-b",
         navbarBg
           ? darkText
-            ? "border-black/10 text-[#112921]"
+            ? "border-black/10 text-[var(--brand-deep)]"
             : "border-white/15 text-white"
           : "bg-background/80 backdrop-blur"
       )}

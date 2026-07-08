@@ -72,7 +72,7 @@ export default function AboutPage() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] opacity-[0.06] dark:opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-deep)] via-[var(--brand-mid)] to-[var(--brand-moss)] opacity-[0.06] dark:opacity-40" />
           <div className="relative mx-auto max-w-6xl px-6 py-24 text-center sm:py-28">
             <FadeIn>
               <p className="text-sm font-semibold tracking-widest text-primary uppercase">
@@ -82,7 +82,7 @@ export default function AboutPage() {
             <FadeIn delay={0.05}>
               <h1 className="mx-auto mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl">
                 Built by{" "}
-                <span className="bg-gradient-to-r from-[#4D6443] to-[#112921] bg-clip-text text-transparent dark:from-[#a9bba0] dark:to-[#4D6443]">
+                <span className="bg-gradient-to-r from-[var(--brand-moss)] to-[var(--brand-deep)] bg-clip-text text-transparent dark:from-[var(--brand-light)] dark:to-[var(--brand-moss)]">
                   Adimyra Systems Private Limited
                 </span>
               </h1>
@@ -140,7 +140,7 @@ export default function AboutPage() {
         {/* CTA */}
         <section className="mx-auto max-w-6xl px-6 pb-24">
           <FadeIn>
-            <Card className="border-0 bg-gradient-to-br from-[#112921] to-[#4D6443] text-white">
+            <Card className="border-0 bg-gradient-to-br from-[var(--brand-deep)] to-[var(--brand-moss)] text-white">
               <CardHeader className="items-center px-8 py-14 text-center">
                 <CardTitle className="text-3xl">
                   Let&apos;s build yours
@@ -152,7 +152,7 @@ export default function AboutPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="mt-6 bg-white text-[#112921] hover:bg-white/90"
+                  className="mt-6 bg-white text-[var(--brand-deep)] hover:bg-white/90"
                 >
                   <a href="mailto:care@adimyra.com">care@adimyra.com</a>
                 </Button>

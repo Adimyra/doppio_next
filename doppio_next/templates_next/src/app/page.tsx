@@ -101,7 +101,7 @@ export default function Home() {
       <main className="flex-1">
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] opacity-[0.06] dark:opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-deep)] via-[var(--brand-mid)] to-[var(--brand-moss)] opacity-[0.06] dark:opacity-40" />
           <div className="relative mx-auto max-w-6xl px-6 py-20 text-center sm:py-28">
             <FadeIn>
               <span className="inline-flex items-center gap-1.5 rounded-full border bg-background/60 px-3 py-1 text-xs font-medium text-muted-foreground backdrop-blur">
@@ -112,7 +112,7 @@ export default function Home() {
             <FadeIn delay={0.05}>
               <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
                 Whatever you imagine,
-                <span className="block bg-gradient-to-r from-[#4D6443] to-[#112921] bg-clip-text text-transparent dark:from-[#a9bba0] dark:to-[#4D6443]">
+                <span className="block bg-gradient-to-r from-[var(--brand-moss)] to-[var(--brand-deep)] bg-clip-text text-transparent dark:from-[var(--brand-light)] dark:to-[var(--brand-moss)]">
                   we design &amp; build it.
                 </span>
               </h1>
@@ -192,7 +192,7 @@ export default function Home() {
         {/* CTA banner */}
         <section className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-24">
           <FadeIn>
-            <Card className="overflow-hidden border-0 bg-gradient-to-br from-[#112921] to-[#4D6443] text-white">
+            <Card className="overflow-hidden border-0 bg-gradient-to-br from-[var(--brand-deep)] to-[var(--brand-moss)] text-white">
               <CardContent className="flex flex-col items-center gap-6 px-8 py-14 text-center">
                 <h2 className="max-w-2xl text-3xl font-bold tracking-tight">
                   Tell us what you want — we&apos;ll build it.
@@ -206,7 +206,7 @@ export default function Home() {
                   <Button
                     asChild
                     size="lg"
-                    className="bg-white text-[#112921] hover:bg-white/90"
+                    className="bg-white text-[var(--brand-deep)] hover:bg-white/90"
                   >
                     <Link href="/contact">
                       Contact us

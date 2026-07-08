@@ -80,7 +80,7 @@ export function AuthShell({
     <div className="flex min-h-screen flex-col">
       <div className="grid flex-1 lg:grid-cols-2">
         {/* Brand panel */}
-        <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
+        <div className="relative hidden overflow-hidden bg-gradient-to-br from-[var(--brand-deep)] via-[var(--brand-mid)] to-[var(--brand-moss)] text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
           <Link href="/" className="flex items-center gap-3">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -97,7 +97,7 @@ export function AuthShell({
             <FadeIn>
               <h1 className="text-5xl leading-tight font-bold">
                 {headline}
-                <span className="block text-[#a9bba0]">{accent}</span>
+                <span className="block text-[var(--brand-light)]">{accent}</span>
               </h1>
             </FadeIn>
             <FadeIn delay={0.05}>
@@ -111,7 +111,7 @@ export function AuthShell({
                     className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 backdrop-blur"
                   >
                     <span className="inline-flex size-9 items-center justify-center rounded-lg bg-white/10">
-                      <perk.icon className="size-4.5 text-[#a9bba0]" />
+                      <perk.icon className="size-4.5 text-[var(--brand-light)]" />
                     </span>
                     <span className="text-sm font-medium">{perk.label}</span>
                   </div>

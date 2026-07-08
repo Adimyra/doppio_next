@@ -91,7 +91,7 @@ export default function ContactPage() {
 
       <main className="flex-1">
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] opacity-[0.06] dark:opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-deep)] via-[var(--brand-mid)] to-[var(--brand-moss)] opacity-[0.06] dark:opacity-40" />
           <div className="relative mx-auto max-w-6xl px-6 py-16 text-center sm:py-20">
             <FadeIn>
               <p className="text-sm font-semibold tracking-widest text-primary uppercase">

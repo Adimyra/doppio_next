@@ -1,51 +1,69 @@
 
 /* ------------------------------------------------------------------ */
-/* Brand theme — Adimyra Systems (deep forest #112921, moss #4D6443)  */
-/* Appended after the shadcn palette so these values win the cascade. */
+/* Brand theme — driven by two colors (Adi Settings → Brand Colors).  */
+/* Defaults: Adimyra deep forest #112921 + moss #4D6443. When the     */
+/* site sets its own colors, a runtime <style> overrides the          */
+/* --brand-* family and every token below follows automatically.      */
 :root {
-  --primary: #112921;
+  --brand-deep: #112921;
+  --brand-moss: #4d6443;
+  --brand-mid: #1d3a2c;
+  --brand-soft: #7d9472;
+  --brand-light: #a9bba0;
+  --brand-tint: #e7eee6;
+  --brand-tint-2: #eef2ec;
+  --brand-muted: #f2f5f0;
+  --brand-muted-fg: #5c6b5e;
+  --brand-dark-bg: #0b100d;
+  --brand-dark-card: #101712;
+  --brand-dark-secondary: #16211a;
+  --brand-dark-accent: #1a271f;
+  --brand-dark-fg: #eef2ec;
+  --brand-dark-muted-fg: #9db2a0;
+
+  --primary: var(--brand-deep);
   --primary-foreground: #ffffff;
-  --secondary: #eef2ec;
-  --secondary-foreground: #112921;
-  --accent: #e7eee6;
-  --accent-foreground: #112921;
-  --muted: #f2f5f0;
-  --muted-foreground: #5c6b5e;
-  --ring: #4d6443;
-  --chart-1: #4d6443;
-  --chart-2: #112921;
-  --chart-3: #7d9472;
-  --chart-4: #a9bba0;
-  --chart-5: #d3ddce;
-  --sidebar-primary: #112921;
-  --sidebar-ring: #4d6443;
+  --secondary: var(--brand-tint-2);
+  --secondary-foreground: var(--brand-deep);
+  --accent: var(--brand-tint);
+  --accent-foreground: var(--brand-deep);
+  --muted: var(--brand-muted);
+  --muted-foreground: var(--brand-muted-fg);
+  --ring: var(--brand-moss);
+  --chart-1: var(--brand-moss);
+  --chart-2: var(--brand-deep);
+  --chart-3: var(--brand-soft);
+  --chart-4: var(--brand-light);
+  --chart-5: var(--brand-tint);
+  --sidebar-primary: var(--brand-deep);
+  --sidebar-ring: var(--brand-moss);
 }
 
 .dark {
-  --background: #0b100d;
-  --foreground: #eef2ec;
-  --card: #101712;
-  --card-foreground: #eef2ec;
-  --popover: #101712;
-  --popover-foreground: #eef2ec;
-  --primary: #4d6443;
+  --background: var(--brand-dark-bg);
+  --foreground: var(--brand-dark-fg);
+  --card: var(--brand-dark-card);
+  --card-foreground: var(--brand-dark-fg);
+  --popover: var(--brand-dark-card);
+  --popover-foreground: var(--brand-dark-fg);
+  --primary: var(--brand-moss);
   --primary-foreground: #ffffff;
-  --secondary: #16211a;
-  --secondary-foreground: #dfe8dc;
-  --muted: #16211a;
-  --muted-foreground: #9db2a0;
-  --accent: #1a271f;
-  --accent-foreground: #e7eee6;
+  --secondary: var(--brand-dark-secondary);
+  --secondary-foreground: var(--brand-light);
+  --muted: var(--brand-dark-secondary);
+  --muted-foreground: var(--brand-dark-muted-fg);
+  --accent: var(--brand-dark-accent);
+  --accent-foreground: var(--brand-tint);
   --destructive: oklch(0.704 0.191 22.216);
   --border: rgba(238, 242, 236, 0.1);
   --input: rgba(238, 242, 236, 0.14);
-  --ring: #4d6443;
-  --chart-1: #7d9472;
-  --chart-2: #4d6443;
-  --chart-3: #a9bba0;
-  --chart-4: #35492f;
-  --chart-5: #d3ddce;
-  --sidebar: #101712;
-  --sidebar-primary: #4d6443;
-  --sidebar-ring: #4d6443;
+  --ring: var(--brand-moss);
+  --chart-1: var(--brand-soft);
+  --chart-2: var(--brand-moss);
+  --chart-3: var(--brand-light);
+  --chart-4: var(--brand-mid);
+  --chart-5: var(--brand-tint);
+  --sidebar: var(--brand-dark-card);
+  --sidebar-primary: var(--brand-moss);
+  --sidebar-ring: var(--brand-moss);
 }

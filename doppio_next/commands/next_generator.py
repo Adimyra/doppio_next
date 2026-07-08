@@ -644,6 +644,30 @@ class NextSPAGenerator:
                                 "description": "Short line above the "
                                 "contact email in the footer.",
                             },
+                            {
+                                "fieldname": "brand_colors_section",
+                                "fieldtype": "Section Break",
+                                "label": "Brand Colors",
+                                "insert_after": "footer_contact_text",
+                            },
+                            {
+                                "fieldname": "brand_primary_color",
+                                "fieldtype": "Color",
+                                "label": "Brand Primary Color",
+                                "insert_after": "brand_colors_section",
+                                "description": "Deep/dark brand color "
+                                "(default #112921). Drives buttons, "
+                                "gradients and dark surfaces everywhere.",
+                            },
+                            {
+                                "fieldname": "brand_secondary_color",
+                                "fieldtype": "Color",
+                                "label": "Brand Secondary Color",
+                                "insert_after": "brand_primary_color",
+                                "description": "Lighter brand accent "
+                                "(default #4D6443). Both colors together "
+                                "re-theme the whole site.",
+                            },
                         ]
                     }
                 )

@@ -37,6 +37,8 @@ export interface WebsiteSettings {
   navbar_text?: "Light" | "Dark" | "";
   contact_email?: string;
   footer_contact_text?: string;
+  brand_primary_color?: string;
+  brand_secondary_color?: string;
   top_bar_items?: TopBarItem[];
   footer_items?: TopBarItem[];
 }
