@@ -81,6 +81,15 @@ class NextSPAGenerator:
         self.spa_path: Path = self.app_path / spa_name
         self.env = os.environ.copy()
 
+        # Bench ports for the dev proxy / realtime socket (cwd is the
+        # sites dir). Frappe defaults when the bench doesn't override.
+        config_path = Path("common_site_config.json")
+        config = (
+            json.loads(config_path.read_text()) if config_path.exists() else {}
+        )
+        self.web_port = config.get("webserver_port", 8000)
+        self.socket_port = config.get("socketio_port", 9000)
+
         self.validate()
         self.resolve_node()
 
@@ -294,8 +303,8 @@ class NextSPAGenerator:
 
             rel = src.relative_to(TEMPLATES_DIR)
 
-            # Variants are applied explicitly below
-            if "_variants" in rel.parts:
+            # Variants and backend files are applied explicitly below
+            if "_variants" in rel.parts or "_backend" in rel.parts:
                 continue
 
             # Skip example pages if not wanted
@@ -321,6 +330,8 @@ class NextSPAGenerator:
             content = src.read_text()
             content = content.replace("__APP__", self.app)
             content = content.replace("__SPA__", self.spa_name)
+            content = content.replace("__WEB_PORT__", str(self.web_port))
+            content = content.replace("__SOCKET_PORT__", str(self.socket_port))
             dest.write_text(content)
 
         # Enable the typography plugin (Tailwind v4 @plugin directive)
@@ -346,12 +357,27 @@ class NextSPAGenerator:
             )
             globals_css.write_text(css)
 
+        # Guest API for Website Settings (branding/navigation) — lives in
+        # the host app's module so the SPA works without doppio_next
+        # installed on the site. Never overwrite user modifications.
+        backend_src = TEMPLATES_DIR / "_backend" / "website_api.py"
+        backend_dest = self.app_path / self.app / "website_api.py"
+        if backend_src.exists() and not backend_dest.exists():
+            content = backend_src.read_text()
+            content = content.replace("__APP__", self.app)
+            content = content.replace("__SPA__", self.spa_name)
+            content = content.replace("__WEB_PORT__", str(self.web_port))
+            content = content.replace("__SOCKET_PORT__", str(self.socket_port))
+            backend_dest.write_text(content)
+
         # Serving-mode variant of next.config.ts
         if self.serving == "standalone":
             variant = TEMPLATES_DIR / "_variants" / "next.config.standalone.ts"
             content = variant.read_text()
             content = content.replace("__APP__", self.app)
             content = content.replace("__SPA__", self.spa_name)
+            content = content.replace("__WEB_PORT__", str(self.web_port))
+            content = content.replace("__SOCKET_PORT__", str(self.socket_port))
             (self.spa_path / "next.config.ts").write_text(content)
 
     def patch_spa_package_json(self):

@@ -4,7 +4,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 /**
  * Dev: Next runs on :8080 and proxies Frappe endpoints to the bench
- * web server on :8000 (realtime socket connects directly to :9000).
+ * web server on :__WEB_PORT__ (realtime socket connects directly to :__SOCKET_PORT__).
  *
  * Prod: static export. `yarn build` runs `next build` and then
  * `scripts/copy-export.mjs`, which places assets in
@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
       }
     : {
         async rewrites() {
-          const frappe = "http://127.0.0.1:8000";
+          const frappe = "http://127.0.0.1:__WEB_PORT__";
           return ["api", "assets", "files", "private"].map((p) => ({
             source: `/${p}/:path*`,
             destination: `${frappe}/${p}/:path*`,

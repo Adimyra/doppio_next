@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { brandImage, useWebsiteSettings } from "@/lib/website-settings";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -28,6 +29,8 @@ export function AppHeader({ subtitle }: { subtitle?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const { currentUser, logout } = useFrappeAuth();
+  const ws = useWebsiteSettings();
+  const logo = brandImage(ws);
 
   async function onLogout() {
     await logout();
@@ -37,8 +40,15 @@ export function AppHeader({ subtitle }: { subtitle?: string }) {
   return (
     <header className="flex items-center justify-between border-b px-6 py-3">
       <div className="flex items-center gap-6">
-        <div>
-          <h1 className="text-lg font-semibold">__SPA__</h1>
+        <div className="flex items-center gap-3">
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt={ws?.app_name || "__SPA__"} className="h-7" />
+          ) : (
+            <h1 className="text-lg font-semibold">
+              {ws?.app_name || "__SPA__"}
+            </h1>
+          )}
           {subtitle ? (
             <p className="text-sm text-muted-foreground">{subtitle}</p>
           ) : null}

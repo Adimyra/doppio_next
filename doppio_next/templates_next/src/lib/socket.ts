@@ -1,6 +1,6 @@
 /**
  * socket.io connection to Frappe's realtime server.
- * In dev (any port, e.g. :8080) it connects straight to :9000;
+ * In dev (any port, e.g. :8080) it connects straight to :__SOCKET_PORT__;
  * in production it uses the same origin (nginx proxies /socket.io).
  *
  * For React components, prefer `useFrappeEventListener()` from
@@ -17,7 +17,7 @@ export function getSocket(): Socket {
 
   if (!socket) {
     const host = window.location.hostname;
-    const port = window.location.port ? ":9000" : "";
+    const port = window.location.port ? ":__SOCKET_PORT__" : "";
     const protocol = port ? "http" : "https";
     socket = io(`${protocol}://${host}${port}`, {
       withCredentials: true,
