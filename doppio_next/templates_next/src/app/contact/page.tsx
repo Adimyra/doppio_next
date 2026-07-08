@@ -286,6 +286,28 @@ export default function ContactPage() {
                             {line}
                           </span>
                         ))}
+                        <span className="mt-3 block overflow-hidden rounded-lg border">
+                          {/* keyless Google Maps embed pinned on the address */}
+                          <iframe
+                            title="Location map"
+                            src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                              contact.address_lines.join(", ")
+                            )}&z=15&output=embed`}
+                            className="block h-44 w-full border-0 dark:brightness-90 dark:contrast-more:brightness-100"
+                            loading="lazy"
+                            referrerPolicy="no-referrer-when-downgrade"
+                          />
+                        </span>
+                        <a
+                          href={`https://www.google.com/maps?q=${encodeURIComponent(
+                            contact.address_lines.join(", ")
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                        >
+                          Open in Google Maps →
+                        </a>
                       </InfoCard>
                     ) : null}
                   </>

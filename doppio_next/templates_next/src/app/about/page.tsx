@@ -295,7 +295,7 @@ export default function AboutPage() {
         <section className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-24">
           <FadeIn>
             <Card className="border-0 bg-gradient-to-br from-[var(--brand-deep)] to-[var(--brand-moss)] text-white">
-              <CardHeader className="items-center px-8 py-14 text-center">
+              <CardHeader className="flex flex-col items-center gap-2 px-8 py-14 text-center">
                 <CardTitle className="text-3xl">
                   {about ? "Let's work together" : "Let's build yours"}
                 </CardTitle>
@@ -307,7 +307,7 @@ export default function AboutPage() {
                 <Button
                   asChild
                   size="lg"
-                  className="mt-6 bg-white text-[var(--brand-deep)] hover:bg-white/90"
+                  className="mt-4 w-auto bg-white text-[var(--brand-deep)] hover:bg-white/90"
                 >
                   {about ? (
                     <Link href="/contact">
