@@ -21,7 +21,7 @@ bench new-app <app> && bench --site <site> install-app <app> && bench add-next-s
 Then verify on the site:
 
 - `/` renders the SPA (home_page was auto-set)
-- `/login`, `/about`, `/contact`, `/update-password?key=x` all 301 to `/frontend/...` (hooks redirects)
+- `/login`, `/about`, `/contact`, `/update-password?key=x` all 302 to `/frontend/...` with the query string intact (before_request hook)
 - Website Settings has the **Adi Settings** tab (custom fields)
 - `apps/<app>/<app>/website_api.py` exists and `hooks.py` ends with the doppio_next block
 
