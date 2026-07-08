@@ -476,13 +476,28 @@ class NextSPAGenerator:
                         "Website Settings."
                     )
                     return
-                frappe.db.set_single_value(
-                    "Website Settings", "home_page", self.spa_name
-                )
+                ws = frappe.get_doc("Website Settings")
+                ws.home_page = self.spa_name
+                # Route Frappe's password-reset emails
+                # (/update-password?key=...) to the SPA's reset page.
+                if not any(
+                    (row.source or "").strip("/ ") == "update-password"
+                    for row in ws.route_redirects
+                ):
+                    ws.append(
+                        "route_redirects",
+                        {
+                            "source": "update-password",
+                            "target": f"/{self.spa_name}/update-password",
+                            "forward_query_parameters": 1,
+                        },
+                    )
+                ws.flags.ignore_permissions = True
+                ws.save()
                 frappe.db.commit()
                 click.echo(
-                    f"Website Settings home_page on {site} set to "
-                    f"'{self.spa_name}'"
+                    f"Website Settings on {site}: home_page = "
+                    f"'{self.spa_name}', /update-password routed to the SPA"
                 )
             finally:
                 frappe.destroy()

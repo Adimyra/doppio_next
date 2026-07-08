@@ -1,80 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFrappeAuth, useFrappePostCall } from "frappe-react-sdk";
 import {
   ArrowRight,
-  Eye,
-  EyeOff,
-  Gauge,
+  KeyRound,
   Lock,
   Mail,
-  ShieldCheck,
-  Sparkles,
   UserRound,
   UserRoundPlus,
 } from "lucide-react";
 import { toast } from "sonner";
 
-import { FadeIn } from "@/components/motion";
-import { SiteFooter } from "@/components/site-header";
-import { ModeToggle } from "@/components/theme-provider";
+import { AuthShell, PasswordInput } from "@/components/auth-shell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { brandImage, useWebsiteSettings } from "@/lib/website-settings";
-
-const PERKS = [
-  { icon: ShieldCheck, label: "Secure & Reliable" },
-  { icon: Gauge, label: "Lightning Fast Experience" },
-  { icon: Sparkles, label: "Realtime ERP Data" },
-];
+import { useWebsiteSettings } from "@/lib/website-settings";
 
 const DIAL_CODES = ["+91", "+1", "+44", "+61", "+65", "+971"];
 
-function PasswordInput({
-  id,
-  value,
-  onChange,
-  placeholder,
-  autoComplete,
-}: {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-  autoComplete?: string;
-}) {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="relative">
-      <Lock className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        id={id}
-        type={show ? "text" : "password"}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        required
-        className="px-9"
-      />
-      <button
-        type="button"
-        aria-label={show ? "Hide password" : "Show password"}
-        onClick={() => setShow((s) => !s)}
-        className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-      >
-        {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-      </button>
-    </div>
-  );
-}
+type Mode = "login" | "signup" | "forgot";
 
-function LoginForm() {
+function LoginForm({ onForgot }: { onForgot: () => void }) {
   const router = useRouter();
   const { login, isLoading } = useFrappeAuth();
   const [email, setEmail] = useState("");
@@ -120,13 +70,13 @@ function LoginForm() {
       <div className="grid gap-2">
         <div className="flex items-center justify-between">
           <Label htmlFor="password">Password</Label>
-          {/* Frappe's own reset flow, outside the SPA basePath */}
-          <a
-            href="/login#forgot"
+          <button
+            type="button"
+            onClick={onForgot}
             className="text-xs text-primary hover:underline"
           >
             Forgot password?
-          </a>
+          </button>
         </div>
         <PasswordInput
           id="password"
@@ -258,18 +208,110 @@ function SignupForm({ onDone }: { onDone: () => void }) {
   );
 }
 
+function ForgotForm({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  // Frappe's standard reset flow — mails a link to /update-password
+  const { call: resetPassword } = useFrappePostCall(
+    "frappe.core.doctype.user.user.reset_password"
+  );
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await resetPassword({ user: email });
+      setSent(true);
+      toast.success("Reset link sent — check your email");
+    } catch (err) {
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Could not send the reset link";
+      toast.error(message);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <div className="grid gap-4 text-center">
+        <div className="mx-auto inline-flex size-14 items-center justify-center rounded-full bg-primary/10">
+          <Mail className="size-6 text-primary" />
+        </div>
+        <p className="text-sm text-muted-foreground">
+          We&apos;ve sent a password reset link to{" "}
+          <span className="font-medium text-foreground">{email}</span>. Open it
+          to set a new password.
+        </p>
+        <Button variant="outline" onClick={onBack}>
+          Back to login
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={onSubmit} className="grid gap-4">
+      <div className="grid gap-2">
+        <Label htmlFor="forgot-email">Email address</Label>
+        <div className="relative">
+          <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="forgot-email"
+            type="email"
+            autoComplete="email"
+            placeholder="name@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="pl-9"
+          />
+        </div>
+      </div>
+      <Button type="submit" size="lg" disabled={submitting}>
+        {submitting ? "Sending link..." : "Send reset link"}
+        <ArrowRight className="size-4" />
+      </Button>
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-center text-sm text-muted-foreground hover:text-foreground hover:underline"
+      >
+        ← Back to login
+      </button>
+    </form>
+  );
+}
+
+const COPY: Record<Mode, { title: string; subtitle: string }> = {
+  login: {
+    title: "Login to Your Account",
+    subtitle: "Enter your credentials to access your account",
+  },
+  signup: {
+    title: "Create Your Account",
+    subtitle: "Join us — it only takes a minute",
+  },
+  forgot: {
+    title: "Forgot Your Password?",
+    subtitle: "We'll email you a link to reset it",
+  },
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const { currentUser } = useFrappeAuth();
   const ws = useWebsiteSettings();
 
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [mode, setMode] = useState<Mode>("login");
 
-  // /login#signup deep link (e.g. from the navbar Sign up button)
+  // /login#signup and /login#forgot deep links
   useEffect(() => {
-    if (window.location.hash === "#signup") {
-      setMode("signup");
-    }
+    if (window.location.hash === "#signup") setMode("signup");
+    if (window.location.hash === "#forgot") setMode("forgot");
   }, []);
 
   useEffect(() => {
@@ -279,145 +321,67 @@ export default function LoginPage() {
   }, [currentUser, router]);
 
   const signupAllowed = !!ws && !ws.disable_signup;
-  const showSignup = mode === "signup" && signupAllowed;
-  const logo = ws?.app_logo || brandImage(ws);
-  const name = ws?.app_name || "__SPA__";
+  const effectiveMode: Mode =
+    mode === "signup" && !signupAllowed ? "login" : mode;
+  const copy = COPY[effectiveMode];
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="grid flex-1 lg:grid-cols-2">
-        {/* Brand panel */}
-        <div className="relative hidden overflow-hidden bg-gradient-to-br from-[#112921] via-[#1d3a2c] to-[#4D6443] text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
-          <Link href="/" className="flex items-center gap-3">
-            {logo ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={logo}
-                alt={name}
-                className="h-10 rounded-lg bg-white/90 p-1"
-              />
-            ) : null}
-            <span className="text-lg font-semibold tracking-wide">{name}</span>
-          </Link>
-
-          <div>
-            <FadeIn>
-              <h1 className="text-5xl leading-tight font-bold">
-                Welcome
-                <span className="block text-[#a9bba0]">back.</span>
-              </h1>
-            </FadeIn>
-            <FadeIn delay={0.05}>
-              <p className="mt-6 max-w-md text-white/75">
-                Sign in to track your orders, download invoices, raise support
-                requests and manage your account.
-              </p>
-            </FadeIn>
-            <FadeIn delay={0.1}>
-              <div className="mt-10 grid max-w-md gap-3">
-                {PERKS.map((perk) => (
-                  <div
-                    key={perk.label}
-                    className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 backdrop-blur"
-                  >
-                    <span className="inline-flex size-9 items-center justify-center rounded-lg bg-white/10">
-                      <perk.icon className="size-4.5 text-[#a9bba0]" />
-                    </span>
-                    <span className="text-sm font-medium">{perk.label}</span>
-                  </div>
-                ))}
-              </div>
-            </FadeIn>
-          </div>
-
-          <p className="text-xs text-white/50">
-            © {new Date().getFullYear()} {name}. All rights reserved.
-          </p>
+    <AuthShell
+      headline="Welcome"
+      accent="back."
+      description="Sign in to track your orders, download invoices, raise support requests and manage your account."
+    >
+      {signupAllowed && effectiveMode !== "forgot" ? (
+        <div className="mb-8 grid grid-cols-2 rounded-full border bg-muted/50 p-1">
+          <button
+            type="button"
+            onClick={() => setMode("login")}
+            className={cn(
+              "flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-colors",
+              effectiveMode === "login"
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Lock className="size-4" />
+            Login
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("signup")}
+            className={cn(
+              "flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-colors",
+              effectiveMode === "signup"
+                ? "bg-primary text-primary-foreground shadow"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <UserRoundPlus className="size-4" />
+            Sign Up
+          </button>
         </div>
+      ) : null}
 
-        {/* Form panel */}
-        <div className="flex flex-col">
-          <div className="flex items-center justify-between p-4 lg:justify-end">
-            <Link
-              href="/"
-              className="text-sm text-muted-foreground hover:text-foreground lg:hidden"
-            >
-              ← Home
-            </Link>
-            <ModeToggle />
-          </div>
-          <div className="flex flex-1 items-center justify-center p-6">
-            <FadeIn y={16} className="w-full max-w-md">
-              {/* Mobile brand */}
-              <div className="mb-8 flex flex-col items-center gap-2 lg:hidden">
-                {logo ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={logo} alt={name} className="h-12" />
-                ) : null}
-                <span className="text-lg font-semibold">{name}</span>
-              </div>
-
-              {signupAllowed ? (
-                <div className="mb-8 grid grid-cols-2 rounded-full border bg-muted/50 p-1">
-                  <button
-                    type="button"
-                    onClick={() => setMode("login")}
-                    className={cn(
-                      "flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-colors",
-                      mode === "login"
-                        ? "bg-primary text-primary-foreground shadow"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Lock className="size-4" />
-                    Login
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setMode("signup")}
-                    className={cn(
-                      "flex items-center justify-center gap-2 rounded-full py-2.5 text-sm font-medium transition-colors",
-                      mode === "signup"
-                        ? "bg-primary text-primary-foreground shadow"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <UserRoundPlus className="size-4" />
-                    Sign Up
-                  </button>
-                </div>
-              ) : null}
-
-              <div className="mb-8 text-center">
-                <h2 className="text-2xl font-bold tracking-tight">
-                  {showSignup ? "Create Your Account" : "Login to Your Account"}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {showSignup
-                    ? "Join us — it only takes a minute"
-                    : "Enter your credentials to access your account"}
-                </p>
-              </div>
-
-              {showSignup ? (
-                <SignupForm onDone={() => setMode("login")} />
-              ) : (
-                <LoginForm />
-              )}
-
-              <p className="mt-8 hidden text-center text-sm text-muted-foreground lg:block">
-                <Link
-                  href="/"
-                  className="hover:text-foreground hover:underline"
-                >
-                  ← Back to home
-                </Link>
-              </p>
-            </FadeIn>
-          </div>
+      {effectiveMode === "forgot" ? (
+        <div className="mb-8 flex justify-center">
+          <span className="inline-flex size-14 items-center justify-center rounded-full bg-primary/10">
+            <KeyRound className="size-6 text-primary" />
+          </span>
         </div>
+      ) : null}
+
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold tracking-tight">{copy.title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{copy.subtitle}</p>
       </div>
-      {ws?.show_footer_on_login ? <SiteFooter /> : null}
-    </div>
+
+      {effectiveMode === "signup" ? (
+        <SignupForm onDone={() => setMode("login")} />
+      ) : effectiveMode === "forgot" ? (
+        <ForgotForm onBack={() => setMode("login")} />
+      ) : (
+        <LoginForm onForgot={() => setMode("forgot")} />
+      )}
+    </AuthShell>
   );
 }
