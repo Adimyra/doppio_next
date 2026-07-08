@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFrappeAuth } from "frappe-react-sdk";
 import { toast } from "sonner";
@@ -90,6 +91,11 @@ export default function LoginPage() {
           </form>
           </CardContent>
         </Card>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          <Link href="/" className="hover:text-foreground hover:underline">
+            ← Back to home
+          </Link>
+        </p>
       </FadeIn>
     </main>
   );

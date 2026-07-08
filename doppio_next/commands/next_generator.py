@@ -330,7 +330,18 @@ class NextSPAGenerator:
                     '@import "tailwindcss";\n@plugin "@tailwindcss/typography";',
                     1,
                 )
-                globals_css.write_text(css)
+            # shadcn's nova preset emits a self-referencing
+            # `--font-sans: var(--font-sans)` — the variable resolves to
+            # nothing and the whole app falls back to Times. Point it at
+            # the Geist variable that create-next-app's layout defines.
+            css = css.replace(
+                "--font-sans: var(--font-sans);",
+                "--font-sans: var(--font-geist-sans);",
+            ).replace(
+                "--font-heading: var(--font-sans);",
+                "--font-heading: var(--font-geist-sans);",
+            )
+            globals_css.write_text(css)
 
         # Serving-mode variant of next.config.ts
         if self.serving == "standalone":

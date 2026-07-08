@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useFrappeAuth } from "frappe-react-sdk";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,6 +16,7 @@ const NAV = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { currentUser, isLoading } = useFrappeAuth();
 
   return (
     <header className="flex items-center justify-between border-b px-6 py-3">
@@ -38,9 +40,16 @@ export function SiteHeader() {
           ))}
         </nav>
       </div>
-      <Button asChild size="sm">
-        <Link href="/dashboard">Open App</Link>
-      </Button>
+      <div className="flex items-center gap-2">
+        {!isLoading && !currentUser ? (
+          <Button asChild variant="outline" size="sm">
+            <Link href="/login">Log in</Link>
+          </Button>
+        ) : null}
+        <Button asChild size="sm">
+          <Link href="/dashboard">Open App</Link>
+        </Button>
+      </div>
     </header>
   );
 }
