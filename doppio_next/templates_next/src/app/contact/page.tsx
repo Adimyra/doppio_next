@@ -259,56 +259,94 @@ export default function ContactPage() {
               <div className="flex h-full flex-col gap-6">
                 {contact ? (
                   <>
-                    {contact.email_id ? (
-                      <InfoCard icon={Mail} title="Email us">
-                        <a
-                          href={`mailto:${contact.email_id}`}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          {contact.email_id}
-                        </a>
-                      </InfoCard>
-                    ) : null}
-                    {contact.phone ? (
-                      <InfoCard icon={Phone} title="Call us">
-                        <a
-                          href={`tel:${contact.phone}`}
-                          className="font-medium text-primary hover:underline"
-                        >
-                          {contact.phone}
-                        </a>
-                      </InfoCard>
+                    {contact.email_id || contact.phone ? (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Get in touch</CardTitle>
+                          <CardDescription>
+                            We&apos;re quick to respond on both.
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid gap-3">
+                          {contact.email_id ? (
+                            <a
+                              href={`mailto:${contact.email_id}`}
+                              className="group flex items-center gap-3 rounded-xl border p-3 transition-colors hover:border-primary/40 hover:bg-accent/50"
+                            >
+                              <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                <Mail className="size-5 text-primary" />
+                              </span>
+                              <span className="min-w-0">
+                                <span className="block text-xs text-muted-foreground">
+                                  Email
+                                </span>
+                                <span className="block truncate text-sm font-medium group-hover:text-primary">
+                                  {contact.email_id}
+                                </span>
+                              </span>
+                            </a>
+                          ) : null}
+                          {contact.phone ? (
+                            <a
+                              href={`tel:${contact.phone}`}
+                              className="group flex items-center gap-3 rounded-xl border p-3 transition-colors hover:border-primary/40 hover:bg-accent/50"
+                            >
+                              <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                <Phone className="size-5 text-primary" />
+                              </span>
+                              <span className="min-w-0">
+                                <span className="block text-xs text-muted-foreground">
+                                  Phone
+                                </span>
+                                <span className="block truncate text-sm font-medium group-hover:text-primary">
+                                  {contact.phone}
+                                </span>
+                              </span>
+                            </a>
+                          ) : null}
+                        </CardContent>
+                      </Card>
                     ) : null}
                     {contact.address_lines.length ? (
-                      <InfoCard icon={MapPin} title="Visit us">
-                        {contact.address_lines.map((line) => (
-                          <span key={line} className="block">
-                            {line}
+                      <Card className="flex flex-1 flex-col">
+                        <CardHeader>
+                          <div className="mb-1 inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                            <MapPin className="size-5 text-primary" />
+                          </div>
+                          <CardTitle>Visit us</CardTitle>
+                          <CardDescription className="leading-relaxed">
+                            {contact.address_lines.map((line) => (
+                              <span key={line} className="block">
+                                {line}
+                              </span>
+                            ))}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex flex-1 flex-col gap-2">
+                          <span className="block min-h-40 flex-1 overflow-hidden rounded-lg border">
+                            {/* keyless Google Maps embed pinned on the address */}
+                            <iframe
+                              title="Location map"
+                              src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                                contact.address_lines.join(", ")
+                              )}&z=15&output=embed`}
+                              className="block h-full min-h-40 w-full border-0 dark:brightness-90"
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                            />
                           </span>
-                        ))}
-                        <span className="mt-3 block overflow-hidden rounded-lg border">
-                          {/* keyless Google Maps embed pinned on the address */}
-                          <iframe
-                            title="Location map"
-                            src={`https://maps.google.com/maps?q=${encodeURIComponent(
+                          <a
+                            href={`https://www.google.com/maps?q=${encodeURIComponent(
                               contact.address_lines.join(", ")
-                            )}&z=15&output=embed`}
-                            className="block h-44 w-full border-0 dark:brightness-90 dark:contrast-more:brightness-100"
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                          />
-                        </span>
-                        <a
-                          href={`https://www.google.com/maps?q=${encodeURIComponent(
-                            contact.address_lines.join(", ")
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
-                        >
-                          Open in Google Maps →
-                        </a>
-                      </InfoCard>
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-primary hover:underline"
+                          >
+                            Open in Google Maps →
+                          </a>
+                        </CardContent>
+                      </Card>
                     ) : null}
                   </>
                 ) : (
