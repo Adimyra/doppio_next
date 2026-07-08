@@ -102,6 +102,61 @@ def get_about_settings():
     }
 
 
+@frappe.whitelist(allow_guest=True)
+def get_contact_settings():
+    """Content for the /contact page from Frappe's Contact Us Settings —
+    None when empty/disabled so the SPA uses its built-in copy. The form
+    submits through frappe.www.contact.send_message (forwards to
+    forward_to_email)."""
+    try:
+        contact = frappe.get_cached_doc("Contact Us Settings")
+    except Exception:
+        return None
+    if contact.get("is_disabled"):
+        return None
+    if not (
+        contact.get("heading")
+        or contact.get("email_id")
+        or contact.get("phone")
+        or contact.get("address_line1")
+    ):
+        return None
+    address_lines = [
+        line.strip(" ,")
+        for line in (
+            contact.get("address_title"),
+            contact.get("address_line1"),
+            contact.get("address_line2"),
+        )
+        if line and line.strip(" ,")
+    ]
+    locality = " ".join(
+        part
+        for part in (
+            contact.get("city"),
+            contact.get("state"),
+            contact.get("pincode"),
+        )
+        if part
+    )
+    if locality:
+        address_lines.append(locality)
+    if contact.get("country"):
+        address_lines.append(contact.get("country"))
+    return {
+        "heading": contact.get("heading"),
+        "introduction": contact.get("introduction"),
+        "query_options": [
+            option.strip()
+            for option in (contact.get("query_options") or "").split("\n")
+            if option.strip()
+        ],
+        "address_lines": address_lines,
+        "phone": contact.get("phone"),
+        "email_id": contact.get("email_id"),
+    }
+
+
 def _require_login():
     if frappe.session.user == "Guest":
         frappe.throw(_("Please log in first"), frappe.PermissionError)
