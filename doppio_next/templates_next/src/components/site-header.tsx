@@ -252,23 +252,56 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const { currentUser, isLoading } = useFrappeAuth();
   const ws = useWebsiteSettings();
-  const logo = brandImage(ws);
+  const logo = ws?.footer_logo || brandImage(ws);
   const footerItems = ws?.footer_items ?? [];
-  const topLevel = footerItems.filter((item) => !item.parent_label);
   const year = new Date().getFullYear();
+
+  // Group by parent_label: parents (or loose links) become columns —
+  // a parent label is a heading, never a link.
+  const childrenOf = (label: string) =>
+    footerItems.filter((item) => item.parent_label === label);
+  const groups = footerItems
+    .filter((item) => !item.parent_label && childrenOf(item.label).length)
+    .map((item) => ({ heading: item.label, links: childrenOf(item.label) }));
+  const loose = footerItems.filter(
+    (item) => !item.parent_label && !childrenOf(item.label).length && item.url
+  );
+  const columns = [
+    ...groups,
+    ...(loose.length ? [{ heading: "Links", links: loose }] : []),
+  ];
+  const fallbackColumns = [
+    {
+      heading: "Links",
+      links: [
+        { label: "Home", url: "/" },
+        { label: "About", url: "/about" },
+        { label: "Contact", url: "/contact" },
+      ] as TopBarItem[],
+    },
+  ];
+
+  const showSignupCta =
+    !isLoading &&
+    !currentUser &&
+    !!ws &&
+    !ws.hide_footer_signup &&
+    !ws.disable_signup &&
+    !ws.hide_login;
 
   return (
     <footer className="border-t bg-secondary/40">
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-3">
-        <div>
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="sm:col-span-2 lg:col-span-1">
           <Link href="/" className="inline-flex items-center gap-2">
             {logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={logo}
                 alt={ws?.app_name || "__SPA__"}
-                className="h-8"
+                className="h-9"
               />
             ) : (
               <span className="text-lg font-semibold">
@@ -278,7 +311,7 @@ export function SiteFooter() {
           </Link>
           {ws?.address ? (
             <div
-              className="mt-4 text-sm text-muted-foreground [&_a]:underline"
+              className="mt-4 text-sm whitespace-pre-line text-muted-foreground [&_a]:underline"
               // Website Settings "Address" is sanitized rich text from the site
               dangerouslySetInnerHTML={{ __html: ws.address }}
             />
@@ -287,29 +320,34 @@ export function SiteFooter() {
               Built on Frappe with Next.js, Tailwind CSS and shadcn/ui.
             </p>
           )}
+          {showSignupCta ? (
+            <div className="mt-6">
+              <p className="text-sm font-medium">New here?</p>
+              <Button asChild size="sm" className="mt-2">
+                <Link href="/login#signup">Create an account</Link>
+              </Button>
+            </div>
+          ) : null}
         </div>
-        <div>
-          <h3 className="text-sm font-semibold">Links</h3>
-          <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-            {(topLevel.length
-              ? topLevel
-              : [
-                  { label: "Home", url: "/" },
-                  { label: "About", url: "/about" },
-                  { label: "Contact", url: "/contact" },
-                ]
-            ).map((item) => (
-              <li key={item.label}>
-                <ItemAnchor
-                  item={item}
-                  className="hover:text-foreground hover:underline"
-                >
-                  {item.label}
-                </ItemAnchor>
-              </li>
-            ))}
-          </ul>
-        </div>
+
+        {(columns.length ? columns : fallbackColumns).map((column) => (
+          <div key={column.heading}>
+            <h3 className="text-sm font-semibold">{column.heading}</h3>
+            <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+              {column.links.map((item) => (
+                <li key={item.label}>
+                  <ItemAnchor
+                    item={item}
+                    className="hover:text-foreground hover:underline"
+                  >
+                    {item.label}
+                  </ItemAnchor>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
         <div>
           <h3 className="text-sm font-semibold">Get in touch</h3>
           <p className="mt-4 text-sm text-muted-foreground">
@@ -333,12 +371,12 @@ export function SiteFooter() {
               : `${year} ${ws?.app_name || "__SPA__"}. All rights reserved.`}
           </p>
           <p>
-            Crafted by{" "}
+            Powered by{" "}
             <a
               href="mailto:care@adimyra.com"
               className="font-medium text-primary hover:underline"
             >
-              Adimyra Systems Private Limited
+              {ws?.footer_powered || "Adimyra Systems Private Limited"}
             </a>{" "}
             · ERPNext + Next.js
           </p>

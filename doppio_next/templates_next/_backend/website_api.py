@@ -36,6 +36,9 @@ def get_website_settings():
         "navbar_search": ws.navbar_search,
         "copyright": ws.copyright,
         "address": ws.address,
+        # not present on older Frappe versions
+        "footer_logo": ws.get("footer_logo"),
+        "footer_powered": ws.get("footer_powered"),
         "top_bar_items": items(ws.top_bar_items),
         "footer_items": items(ws.footer_items),
     }
@@ -88,48 +91,120 @@ def update_my_profile(
 
 
 @frappe.whitelist()
-def get_my_account():
-    """Orders, invoices and issues of the logged-in portal user
-    (empty lists when ERPNext / the doctype is not installed)."""
+def get_portal_sections():
+    """My Account sections from Portal Settings: enabled menu items
+    whose role the logged-in user has (no role = everyone)."""
     _require_login()
-    user = frappe.session.user
-    out = {"orders": [], "invoices": [], "issues": []}
+    user_roles = set(frappe.get_roles())
+    sections = []
+    try:
+        portal = frappe.get_cached_doc("Portal Settings")
+    except Exception:
+        return sections
+    for item in portal.menu:
+        if not item.enabled:
+            continue
+        if item.role and item.role not in user_roles:
+            continue
+        if not item.reference_doctype or not frappe.db.exists(
+            "DocType", item.reference_doctype
+        ):
+            continue
+        sections.append(
+            {"title": item.title, "doctype": item.reference_doctype}
+        )
+    return sections
 
-    customers = []
+
+def _party_filters(meta, user):
+    """Restrict a portal list to the logged-in user: linked
+    customer/supplier when ERPNext linkage exists, else own docs."""
     try:
         from erpnext.controllers.website_list_for_contact import (
             get_customers_suppliers,
         )
 
-        customers, _suppliers = get_customers_suppliers("Sales Order", user)
+        customers, suppliers = get_customers_suppliers(meta.name, user)
+        if customers and meta.has_field("customer"):
+            return {"customer": ["in", customers]}
+        if suppliers and meta.has_field("supplier"):
+            return {"supplier": ["in", suppliers]}
     except Exception:
         pass
+    if meta.has_field("raised_by"):
+        return {"raised_by": user}
+    return {"owner": user}
 
-    if customers and frappe.db.exists("DocType", "Sales Order"):
-        out["orders"] = frappe.get_all(
-            "Sales Order",
-            filters={"customer": ["in", customers], "docstatus": 1},
-            fields=["name", "transaction_date", "status", "grand_total", "currency"],
-            order_by="transaction_date desc",
-            limit=20,
-        )
-    if customers and frappe.db.exists("DocType", "Sales Invoice"):
-        out["invoices"] = frappe.get_all(
-            "Sales Invoice",
-            filters={"customer": ["in", customers], "docstatus": 1},
-            fields=["name", "posting_date", "status", "grand_total", "currency"],
-            order_by="posting_date desc",
-            limit=20,
-        )
-    if frappe.db.exists("DocType", "Issue"):
-        out["issues"] = frappe.get_all(
-            "Issue",
-            filters={"raised_by": user},
-            fields=["name", "subject", "status", "creation"],
-            order_by="creation desc",
-            limit=20,
-        )
-    return out
+
+@frappe.whitelist()
+def get_portal_list(doctype, limit=20):
+    """Rows for one My Account section (doctype must be granted by
+    Portal Settings for this user)."""
+    _require_login()
+    allowed = {s["doctype"] for s in get_portal_sections()}
+    if doctype not in allowed:
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+
+    user = frappe.session.user
+    meta = frappe.get_meta(doctype)
+    filters = _party_filters(meta, user)
+    if meta.is_submittable:
+        filters["docstatus"] = ["<", 2]
+
+    date_field = next(
+        (
+            f
+            for f in ("transaction_date", "posting_date", "date")
+            if meta.has_field(f)
+        ),
+        None,
+    )
+    subject_field = next(
+        (
+            f
+            for f in ("subject", "title", "project_name", "item_name")
+            if meta.has_field(f)
+        ),
+        None,
+    )
+    has_status = bool(meta.has_field("status"))
+    has_total = bool(meta.has_field("grand_total"))
+
+    fields = ["name", "creation"]
+    if date_field:
+        fields.append(date_field)
+    if subject_field:
+        fields.append(subject_field)
+    if has_status:
+        fields.append("status")
+    if has_total:
+        fields.append("grand_total")
+        if meta.has_field("currency"):
+            fields.append("currency")
+
+    rows = frappe.get_all(
+        doctype,
+        filters=filters,
+        fields=fields,
+        order_by="creation desc",
+        limit=min(int(limit), 50),
+    )
+    return {
+        "has_status": has_status,
+        "has_total": has_total,
+        "has_subject": bool(subject_field),
+        "rows": [
+            {
+                "name": row.name,
+                "date": str(row.get(date_field) or row.creation)[:10],
+                "subject": row.get(subject_field),
+                "status": row.get("status"),
+                "total": row.get("grand_total"),
+                "currency": row.get("currency"),
+            }
+            for row in rows
+        ],
+    }
 
 
 @frappe.whitelist()

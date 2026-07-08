@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useFrappeGetCall, useFrappePostCall } from "frappe-react-sdk";
-import { FileText, LifeBuoy, Package, Plus } from "lucide-react";
+import {
+  FileText,
+  LifeBuoy,
+  Package,
+  Pencil,
+  Plus,
+  UserRound,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { FadeIn } from "@/components/motion";
@@ -29,36 +36,52 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { useRequireAuth } from "@/lib/use-require-auth";
 import { useSessionUser } from "@/lib/website-settings";
 
-interface AccountData {
-  orders: {
-    name: string;
-    transaction_date: string;
-    status: string;
-    grand_total: number;
-    currency: string;
-  }[];
-  invoices: {
-    name: string;
-    posting_date: string;
-    status: string;
-    grand_total: number;
-    currency: string;
-  }[];
-  issues: { name: string; subject: string; status: string; creation: string }[];
+interface PortalSection {
+  title: string;
+  doctype: string;
 }
 
-function ProfileCard() {
+interface PortalListRow {
+  name: string;
+  date: string;
+  subject?: string;
+  status?: string;
+  total?: number;
+  currency?: string;
+}
+
+interface PortalList {
+  has_status: boolean;
+  has_total: boolean;
+  has_subject: boolean;
+  rows: PortalListRow[];
+}
+
+function sectionIcon(doctype: string) {
+  if (doctype === "Issue") return LifeBuoy;
+  if (doctype.includes("Invoice")) return FileText;
+  return Package;
+}
+
+/* ------------------------------------------------------------------ */
+/* Profile                                                             */
+/* ------------------------------------------------------------------ */
+
+function ProfileSection() {
   const { sessionUser, refresh } = useSessionUser();
   const { call: updateProfile } = useFrappePostCall(
     "__APP__.website_api.update_my_profile"
   );
 
+  const [editing, setEditing] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [mobileNo, setMobileNo] = useState("");
+  const [phone, setPhone] = useState("");
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -66,6 +89,7 @@ function ProfileCard() {
       setFirstName(sessionUser.first_name ?? "");
       setLastName(sessionUser.last_name ?? "");
       setMobileNo(sessionUser.mobile_no ?? "");
+      setPhone(sessionUser.phone ?? "");
     }
   }, [sessionUser]);
 
@@ -77,8 +101,10 @@ function ProfileCard() {
         first_name: firstName,
         last_name: lastName,
         mobile_no: mobileNo,
+        phone,
       });
       refresh();
+      setEditing(false);
       toast.success("Profile updated");
     } catch {
       toast.error("Could not update profile");
@@ -103,84 +129,119 @@ function ProfileCard() {
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center gap-4">
-        <Avatar className="size-16">
-          {sessionUser.user_image ? (
-            <AvatarImage
-              src={sessionUser.user_image}
-              alt={sessionUser.full_name ?? ""}
-            />
-          ) : null}
-          <AvatarFallback className="bg-primary/10 text-xl text-primary">
-            {(sessionUser.full_name ?? "?").slice(0, 1).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        <div className="min-w-0">
-          <CardTitle className="truncate text-xl">
-            {sessionUser.full_name}
-          </CardTitle>
-          <CardDescription className="truncate">
-            {sessionUser.email}
-          </CardDescription>
+      <CardHeader className="flex-row items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4">
+          <Avatar className="size-16">
+            {sessionUser.user_image ? (
+              <AvatarImage
+                src={sessionUser.user_image}
+                alt={sessionUser.full_name ?? ""}
+              />
+            ) : null}
+            <AvatarFallback className="bg-primary/10 text-xl text-primary">
+              {(sessionUser.full_name ?? "?").slice(0, 1).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0">
+            <CardTitle className="truncate text-xl">
+              {sessionUser.full_name}
+            </CardTitle>
+            <CardDescription className="truncate">
+              {sessionUser.email}
+            </CardDescription>
+          </div>
         </div>
+        {!editing ? (
+          <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
+            <Pencil className="size-4" />
+            Edit profile
+          </Button>
+        ) : null}
       </CardHeader>
       <Separator />
       <CardContent className="pt-6">
-        <form onSubmit={onSave} className="grid gap-4 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor="first-name">First name</Label>
-            <Input
-              id="first-name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="last-name">Last name</Label>
-            <Input
-              id="last-name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="mobile-no">Mobile number</Label>
-            <Input
-              id="mobile-no"
-              type="tel"
-              value={mobileNo}
-              onChange={(e) => setMobileNo(e.target.value)}
-              placeholder="+91 98765 43210"
-            />
-          </div>
-          <div className="flex items-end">
-            <Button type="submit" disabled={saving}>
-              {saving ? "Saving..." : "Save changes"}
-            </Button>
-          </div>
-        </form>
+        {editing ? (
+          <form onSubmit={onSave} className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-2">
+              <Label htmlFor="first-name">First name</Label>
+              <Input
+                id="first-name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="last-name">Last name</Label>
+              <Input
+                id="last-name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="mobile-no">Mobile number</Label>
+              <Input
+                id="mobile-no"
+                type="tel"
+                value={mobileNo}
+                onChange={(e) => setMobileNo(e.target.value)}
+                placeholder="+91 98765 43210"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Landline / alternate"
+              />
+            </div>
+            <div className="flex gap-2 sm:col-span-2">
+              <Button type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save changes"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setEditing(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
+            {[
+              ["First name", sessionUser.first_name],
+              ["Last name", sessionUser.last_name],
+              ["Email", sessionUser.email],
+              ["Mobile number", sessionUser.mobile_no],
+              ["Phone", sessionUser.phone],
+              [
+                "Desk access",
+                sessionUser.desk_access ? "Yes (System User)" : "No",
+              ],
+            ].map(([label, value]) => (
+              <div key={label as string}>
+                <dt className="text-muted-foreground">{label}</dt>
+                <dd className="mt-0.5 font-medium">
+                  {value || <span className="text-muted-foreground">—</span>}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </CardContent>
     </Card>
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  return <Badge variant="secondary">{status}</Badge>;
-}
-
-function EmptyRow({ span, text }: { span: number; text: string }) {
-  return (
-    <TableRow>
-      <TableCell
-        colSpan={span}
-        className="py-8 text-center text-muted-foreground"
-      >
-        {text}
-      </TableCell>
-    </TableRow>
-  );
-}
+/* ------------------------------------------------------------------ */
+/* Raise issue (shown on the Issues section)                           */
+/* ------------------------------------------------------------------ */
 
 function RaiseIssueForm({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false);
@@ -260,19 +321,134 @@ function RaiseIssueForm({ onCreated }: { onCreated: () => void }) {
   );
 }
 
-export default function MyAccountPage() {
-  const { currentUser } = useRequireAuth();
-  const { data, mutate } = useFrappeGetCall<{ message: AccountData }>(
-    "__APP__.website_api.get_my_account",
-    undefined,
-    currentUser ? "my-account" : null,
+/* ------------------------------------------------------------------ */
+/* Generic doctype section                                             */
+/* ------------------------------------------------------------------ */
+
+function DoctypeSection({ section }: { section: PortalSection }) {
+  const { data, mutate } = useFrappeGetCall<{ message: PortalList }>(
+    "__APP__.website_api.get_portal_list",
+    { doctype: section.doctype },
+    `portal-list-${section.doctype}`,
     { revalidateOnFocus: false }
   );
-  const account = data?.message;
+  const list = data?.message;
+  const Icon = sectionIcon(section.doctype);
+
+  return (
+    <Card>
+      <CardHeader className="flex-row items-center gap-3">
+        <div className="inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
+          <Icon className="size-5 text-primary" />
+        </div>
+        <div>
+          <CardTitle>{section.title}</CardTitle>
+          <CardDescription>
+            Your recent {section.title.toLowerCase()}
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        {section.doctype === "Issue" ? (
+          <RaiseIssueForm onCreated={() => void mutate()} />
+        ) : null}
+        {!list ? (
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-8 w-2/3" />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                {list.has_subject ? <TableHead>Title</TableHead> : null}
+                <TableHead>Date</TableHead>
+                {list.has_status ? <TableHead>Status</TableHead> : null}
+                {list.has_total ? (
+                  <TableHead className="text-right">Total</TableHead>
+                ) : null}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {list.rows.length ? (
+                list.rows.map((row) => (
+                  <TableRow key={row.name}>
+                    <TableCell className="font-medium">{row.name}</TableCell>
+                    {list.has_subject ? (
+                      <TableCell className="max-w-64 truncate">
+                        {row.subject}
+                      </TableCell>
+                    ) : null}
+                    <TableCell>{row.date}</TableCell>
+                    {list.has_status ? (
+                      <TableCell>
+                        {row.status ? (
+                          <Badge variant="secondary">{row.status}</Badge>
+                        ) : null}
+                      </TableCell>
+                    ) : null}
+                    {list.has_total ? (
+                      <TableCell className="text-right">
+                        {row.total != null
+                          ? `${row.currency ?? ""} ${row.total}`
+                          : null}
+                      </TableCell>
+                    ) : null}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={
+                      2 +
+                      (list.has_subject ? 1 : 0) +
+                      (list.has_status ? 1 : 0) +
+                      (list.has_total ? 1 : 0)
+                    }
+                    className="py-8 text-center text-muted-foreground"
+                  >
+                    Nothing here yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                */
+/* ------------------------------------------------------------------ */
+
+export default function MyAccountPage() {
+  const { currentUser } = useRequireAuth();
+  const [active, setActive] = useState("profile");
+  const { data } = useFrappeGetCall<{ message: PortalSection[] }>(
+    "__APP__.website_api.get_portal_sections",
+    undefined,
+    currentUser ? "portal-sections" : null,
+    { revalidateOnFocus: false }
+  );
+  const sections = data?.message ?? [];
+  const activeSection = sections.find((s) => s.doctype === active);
 
   if (!currentUser) {
     return null;
   }
+
+  const navItems = [
+    { key: "profile", title: "Profile", icon: UserRound },
+    ...sections.map((section) => ({
+      key: section.doctype,
+      title: section.title,
+      icon: sectionIcon(section.doctype),
+    })),
+  ];
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -282,152 +458,40 @@ export default function MyAccountPage() {
         <FadeIn>
           <h1 className="text-3xl font-bold tracking-tight">My Account</h1>
           <p className="mt-1 text-muted-foreground">
-            Your profile, orders, invoices and support requests.
+            Your profile and everything connected to your account.
           </p>
         </FadeIn>
 
-        <div className="mt-8 grid gap-6">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
+          {/* Sidebar (horizontal pills on mobile) */}
           <FadeIn delay={0.05}>
-            <ProfileCard />
+            <nav className="flex gap-1 overflow-x-auto pb-2 lg:flex-col lg:pb-0">
+              {navItems.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setActive(item.key)}
+                  className={cn(
+                    "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors",
+                    active === item.key
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  <item.icon className="size-4" />
+                  {item.title}
+                </button>
+              ))}
+            </nav>
           </FadeIn>
 
-          <FadeIn delay={0.1}>
-            <Card>
-              <CardHeader className="flex-row items-center gap-3">
-                <div className="inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Package className="size-5 text-primary" />
-                </div>
-                <div>
-                  <CardTitle>Orders</CardTitle>
-                  <CardDescription>Your recent sales orders</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {account?.orders?.length ? (
-                      account.orders.map((order) => (
-                        <TableRow key={order.name}>
-                          <TableCell className="font-medium">
-                            {order.name}
-                          </TableCell>
-                          <TableCell>{order.transaction_date}</TableCell>
-                          <TableCell>
-                            <StatusBadge status={order.status} />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {order.currency} {order.grand_total}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <EmptyRow span={4} text="No orders yet." />
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </FadeIn>
-
-          <FadeIn delay={0.15}>
-            <Card>
-              <CardHeader className="flex-row items-center gap-3">
-                <div className="inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                  <FileText className="size-5 text-primary" />
-                </div>
-                <div>
-                  <CardTitle>Invoices</CardTitle>
-                  <CardDescription>Your recent invoices</CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Invoice</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {account?.invoices?.length ? (
-                      account.invoices.map((invoice) => (
-                        <TableRow key={invoice.name}>
-                          <TableCell className="font-medium">
-                            {invoice.name}
-                          </TableCell>
-                          <TableCell>{invoice.posting_date}</TableCell>
-                          <TableCell>
-                            <StatusBadge status={invoice.status} />
-                          </TableCell>
-                          <TableCell className="text-right">
-                            {invoice.currency} {invoice.grand_total}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <EmptyRow span={4} text="No invoices yet." />
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </FadeIn>
-
-          <FadeIn delay={0.2}>
-            <Card>
-              <CardHeader className="flex-row items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                    <LifeBuoy className="size-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle>Support</CardTitle>
-                    <CardDescription>
-                      Issues you have raised with us
-                    </CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="grid gap-4">
-                <RaiseIssueForm onCreated={() => void mutate()} />
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Issue</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {account?.issues?.length ? (
-                      account.issues.map((issue) => (
-                        <TableRow key={issue.name}>
-                          <TableCell className="font-medium">
-                            {issue.name}
-                          </TableCell>
-                          <TableCell>{issue.subject}</TableCell>
-                          <TableCell>
-                            <StatusBadge status={issue.status} />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    ) : (
-                      <EmptyRow span={3} text="No issues raised." />
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+          {/* Content */}
+          <FadeIn delay={0.1} key={active}>
+            {active === "profile" ? (
+              <ProfileSection />
+            ) : activeSection ? (
+              <DoctypeSection section={activeSection} />
+            ) : null}
           </FadeIn>
         </div>
       </main>

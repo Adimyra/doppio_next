@@ -22,6 +22,8 @@ export interface WebsiteSettings {
   navbar_search?: 0 | 1;
   copyright?: string;
   address?: string;
+  footer_logo?: string;
+  footer_powered?: string;
   top_bar_items?: TopBarItem[];
   footer_items?: TopBarItem[];
 }
