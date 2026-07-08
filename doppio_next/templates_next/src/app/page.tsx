@@ -18,6 +18,7 @@ import {
   StaggerContainer,
   StaggerItem,
 } from "@/components/motion";
+import { HOME_DESIGNS } from "@/components/home-designs";
 import { SiteFooter, SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,40 +28,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useWebsiteSettings } from "@/lib/website-settings";
 
 const SERVICES = [
   {
     icon: ShoppingCart,
+    demo: "/demos/ecommerce",
     title: "E-commerce Sites",
     description:
       "Online stores with catalogs, carts and payments — inventory and billing flowing straight into ERPNext.",
   },
   {
     icon: LayoutTemplate,
+    demo: "/demos/portal",
     title: "Business Portals",
     description:
       "Customer portals like this one — orders, invoices, support and account management in one clean interface.",
   },
   {
     icon: UserRound,
+    demo: "/demos/personal",
     title: "Personal & Company Sites",
     description:
       "Portfolios, landing pages and corporate websites — fast, responsive and beautifully designed.",
   },
   {
     icon: Workflow,
+    demo: "/demos/erpnext",
     title: "ERPNext & Frappe",
     description:
       "Full ERP implementations — accounting, inventory, HR, manufacturing — tailored to how your business runs.",
   },
   {
     icon: Blocks,
+    demo: "/demos/custom",
     title: "Custom Functions & Apps",
     description:
       "Custom doctypes, workflows, automations and integrations — whatever function your business needs, we build it.",
   },
   {
     icon: Globe,
+    demo: "/contact",
     title: "More Pages, Anytime",
     description:
       "Need another page, a new feature or a redesign later? We keep building as your business grows.",
@@ -68,6 +76,23 @@ const SERVICES = [
 ];
 
 export default function Home() {
+  const ws = useWebsiteSettings();
+  const designKey = ws?.homepage_design;
+  const design =
+    designKey && designKey !== "classic" ? HOME_DESIGNS[designKey] : null;
+
+  if (design) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <SiteHeader />
+        <main className="flex-1">
+          <design.Component />
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -125,29 +150,38 @@ export default function Home() {
         </section>
 
         {/* Services */}
-        <section className="mx-auto max-w-6xl px-6 pt-2 pb-20 sm:pt-4 sm:pb-24">
+        <section
+          id="designs"
+          className="mx-auto max-w-6xl scroll-mt-20 px-6 pt-2 pb-20 sm:pt-4 sm:pb-24"
+        >
           <FadeIn>
             <h2 className="text-center text-3xl font-bold tracking-tight">
               What we can build for you
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">
               All types of sites and software, powered by Frappe, ERPNext and
-              Next.js — designed, developed and cared for by Adimyra.
+              Next.js — click any card to see a live demo.
             </p>
           </FadeIn>
           <StaggerContainer className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((service) => (
               <StaggerItem key={service.title} className="h-full">
                 <HoverLift className="h-full">
-                  <Card className="h-full">
-                    <CardHeader>
-                      <div className="mb-2 inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
-                        <service.icon className="size-5 text-primary" />
-                      </div>
-                      <CardTitle>{service.title}</CardTitle>
-                      <CardDescription>{service.description}</CardDescription>
-                    </CardHeader>
-                  </Card>
+                  <Link href={service.demo} className="block h-full">
+                    <Card className="h-full transition-colors hover:border-primary/40">
+                      <CardHeader>
+                        <div className="mb-2 inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
+                          <service.icon className="size-5 text-primary" />
+                        </div>
+                        <CardTitle>{service.title}</CardTitle>
+                        <CardDescription>{service.description}</CardDescription>
+                        <p className="mt-2 flex items-center gap-1 text-sm font-medium text-primary">
+                          {service.demo === "/contact" ? "Talk to us" : "View demo"}
+                          <ArrowRight className="size-3.5" />
+                        </p>
+                      </CardHeader>
+                    </Card>
+                  </Link>
                 </HoverLift>
               </StaggerItem>
             ))}

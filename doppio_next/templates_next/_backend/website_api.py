@@ -39,8 +39,13 @@ def get_website_settings():
         # not present on older Frappe versions
         "footer_logo": ws.get("footer_logo"),
         "footer_powered": ws.get("footer_powered"),
-        # custom field from the Adi Settings tab (may not exist yet)
+        # custom fields from the Adi Settings tab (may not exist yet)
         "default_website_theme": ws.get("default_website_theme"),
+        "homepage_design": ws.get("homepage_design"),
+        "homepage_title": ws.get("homepage_title"),
+        "homepage_tagline": ws.get("homepage_tagline"),
+        "homepage_cta_label": ws.get("homepage_cta_label"),
+        "homepage_cta_url": ws.get("homepage_cta_url"),
         "top_bar_items": items(ws.top_bar_items),
         "footer_items": items(ws.footer_items),
     }
@@ -49,6 +54,31 @@ def get_website_settings():
 def _require_login():
     if frappe.session.user == "Guest":
         frappe.throw(_("Please log in first"), frappe.PermissionError)
+
+
+HOMEPAGE_DESIGNS = (
+    "classic",
+    "ecommerce",
+    "portal",
+    "personal",
+    "erpnext",
+    "custom",
+)
+
+
+@frappe.whitelist()
+def set_homepage_design(design):
+    """Switch the homepage design (the 'Use this' button on /demos
+    pages). Needs write access to Website Settings."""
+    _require_login()
+    if not frappe.has_permission("Website Settings", "write"):
+        frappe.throw(_("Not permitted"), frappe.PermissionError)
+    if design not in HOMEPAGE_DESIGNS:
+        frappe.throw(_("Unknown homepage design: {0}").format(design))
+    frappe.db.set_single_value("Website Settings", "homepage_design", design)
+    frappe.db.commit()
+    frappe.clear_cache()
+    return {"homepage_design": design}
 
 
 @frappe.whitelist()

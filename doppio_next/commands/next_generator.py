@@ -525,6 +525,56 @@ class NextSPAGenerator:
                                 "in. Visitors can still switch with the "
                                 "sun/moon toggle.",
                             },
+                            {
+                                "fieldname": "homepage_design",
+                                "fieldtype": "Select",
+                                "label": "Homepage Design",
+                                "options": "classic\necommerce\nportal"
+                                "\npersonal\nerpnext\ncustom",
+                                "default": "classic",
+                                "insert_after": "default_website_theme",
+                                "description": "Design the homepage "
+                                "renders with. Preview them under /demos "
+                                "on the site.",
+                            },
+                            {
+                                "fieldname": "homepage_content_section",
+                                "fieldtype": "Section Break",
+                                "label": "Homepage Content",
+                                "insert_after": "homepage_design",
+                            },
+                            {
+                                "fieldname": "homepage_title",
+                                "fieldtype": "Data",
+                                "label": "Homepage Title",
+                                "insert_after": "homepage_content_section",
+                                "description": "Hero heading. Leave blank "
+                                "for the design default.",
+                            },
+                            {
+                                "fieldname": "homepage_tagline",
+                                "fieldtype": "Small Text",
+                                "label": "Homepage Tagline",
+                                "insert_after": "homepage_title",
+                                "description": "One or two lines under "
+                                "the heading.",
+                            },
+                            {
+                                "fieldname": "homepage_cta_label",
+                                "fieldtype": "Data",
+                                "label": "CTA Label",
+                                "insert_after": "homepage_tagline",
+                                "description": "Main button text, e.g. "
+                                "Shop now.",
+                            },
+                            {
+                                "fieldname": "homepage_cta_url",
+                                "fieldtype": "Data",
+                                "label": "CTA URL",
+                                "insert_after": "homepage_cta_label",
+                                "description": "Where the main button "
+                                "goes, e.g. /login or https://...",
+                            },
                         ]
                     }
                 )
