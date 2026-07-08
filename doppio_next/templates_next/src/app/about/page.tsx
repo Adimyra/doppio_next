@@ -108,7 +108,7 @@ export default function AboutPage() {
         </section>
 
         {/* Services */}
-        <section className="mx-auto max-w-6xl px-6 pb-24">
+        <section className="mx-auto max-w-6xl px-6 pt-2 pb-24 sm:pt-4">
           <FadeIn>
             <h2 className="text-center text-3xl font-bold tracking-tight">
               What we do
@@ -120,8 +120,8 @@ export default function AboutPage() {
           </FadeIn>
           <StaggerContainer className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((service) => (
-              <StaggerItem key={service.title}>
-                <HoverLift>
+              <StaggerItem key={service.title} className="h-full">
+                <HoverLift className="h-full">
                   <Card className="h-full">
                     <CardHeader>
                       <div className="mb-2 inline-flex size-10 items-center justify-center rounded-lg bg-primary/10">
