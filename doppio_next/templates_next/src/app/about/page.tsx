@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useFrappeGetCall } from "frappe-react-sdk";
 import {
   ArrowRight,
@@ -86,7 +87,7 @@ function DynamicAbout({ about }: { about: AboutSettings }) {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--brand-deep)] via-[var(--brand-mid)] to-[var(--brand-moss)] opacity-[0.06] dark:opacity-40" />
-        <div className="relative mx-auto max-w-4xl px-6 py-20 text-center sm:py-24">
+        <div className="relative mx-auto max-w-4xl px-6 py-16 text-center sm:py-20">
           <FadeIn>
             <p className="text-sm font-semibold tracking-widest text-primary uppercase">
               About us
@@ -111,17 +112,17 @@ function DynamicAbout({ about }: { about: AboutSettings }) {
 
       {/* Company history timeline */}
       {about.company_history.length ? (
-        <section className="mx-auto max-w-3xl px-6 pb-20 sm:pb-24">
+        <section className="mx-auto max-w-3xl px-6 pt-6 pb-16 sm:pt-8 sm:pb-20">
           <FadeIn>
             <h2 className="flex items-center justify-center gap-2 text-center text-3xl font-bold tracking-tight">
               <History className="size-7 text-primary" />
               {about.company_history_heading || "Company History"}
             </h2>
           </FadeIn>
-          <StaggerContainer className="mt-12">
+          <StaggerContainer className="mx-auto mt-12 max-w-2xl">
             {about.company_history.map((entry, index) => (
               <StaggerItem key={`${entry.year}-${index}`}>
-                <div className="relative flex gap-6 pb-10 last:pb-0">
+                <div className="relative flex items-start gap-6 pb-10 last:pb-0">
                   {index < about.company_history.length - 1 ? (
                     <span className="absolute top-10 left-9 h-full w-px bg-border" />
                   ) : null}
@@ -140,7 +141,7 @@ function DynamicAbout({ about }: { about: AboutSettings }) {
 
       {/* Team */}
       {about.team_members.length ? (
-        <section className="mx-auto max-w-6xl px-6 pb-20 sm:pb-24">
+        <section className="mx-auto max-w-5xl px-6 pt-2 pb-16 sm:pb-20">
           <FadeIn>
             <h2 className="flex items-center justify-center gap-2 text-center text-3xl font-bold tracking-tight">
               <UsersRound className="size-7 text-primary" />
@@ -184,7 +185,7 @@ function DynamicAbout({ about }: { about: AboutSettings }) {
 
       {/* Footer note */}
       {about.footer ? (
-        <section className="mx-auto max-w-2xl px-6 pb-20 text-center sm:pb-24">
+        <section className="mx-auto max-w-2xl px-6 pb-16 text-center sm:pb-20">
           <FadeIn>
             <div
               className="prose dark:prose-invert mx-auto text-muted-foreground"
@@ -289,24 +290,33 @@ export default function AboutPage() {
           <ShowcaseAbout />
         )}
 
-        {/* CTA */}
-        <section className="mx-auto max-w-6xl px-6 pb-24">
+        {/* CTA — generic when the page is fed by About Us Settings,
+            the Adimyra pitch only on the built-in fallback */}
+        <section className="mx-auto w-full max-w-6xl px-6 pb-20 sm:pb-24">
           <FadeIn>
             <Card className="border-0 bg-gradient-to-br from-[var(--brand-deep)] to-[var(--brand-moss)] text-white">
               <CardHeader className="items-center px-8 py-14 text-center">
                 <CardTitle className="text-3xl">
-                  Let&apos;s build yours
+                  {about ? "Let's work together" : "Let's build yours"}
                 </CardTitle>
                 <CardDescription className="max-w-xl text-white/80">
-                  Websites, portals, ERP rollouts, custom apps — tell us the
-                  idea and we&apos;ll take it from there.
+                  {about
+                    ? "Have a question or a project in mind? We'd love to hear from you."
+                    : "Websites, portals, ERP rollouts, custom apps — tell us the idea and we'll take it from there."}
                 </CardDescription>
                 <Button
                   asChild
                   size="lg"
                   className="mt-6 bg-white text-[var(--brand-deep)] hover:bg-white/90"
                 >
-                  <a href="mailto:care@adimyra.com">care@adimyra.com</a>
+                  {about ? (
+                    <Link href="/contact">
+                      Contact us
+                      <ArrowRight className="size-4" />
+                    </Link>
+                  ) : (
+                    <a href="mailto:care@adimyra.com">care@adimyra.com</a>
+                  )}
                 </Button>
               </CardHeader>
             </Card>
