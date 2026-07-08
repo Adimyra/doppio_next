@@ -32,6 +32,17 @@ const DIAL_CODES = ["+91", "+1", "+44", "+61", "+65", "+971"];
 
 type Mode = "login" | "signup" | "forgot";
 
+/** Frappe's ?redirect-to= (forwarded by the /login redirect) — only
+ *  same-site absolute paths are honored. */
+function redirectTarget(): string | null {
+  const target = new URLSearchParams(window.location.search).get(
+    "redirect-to"
+  );
+  return target && target.startsWith("/") && !target.startsWith("//")
+    ? target
+    : null;
+}
+
 function LoginForm({ onForgot }: { onForgot: () => void }) {
   const router = useRouter();
   const { login, isLoading } = useFrappeAuth();
@@ -45,6 +56,12 @@ function LoginForm({ onForgot }: { onForgot: () => void }) {
     try {
       await login({ username: email, password });
       toast.success("Logged in");
+      const target = redirectTarget();
+      if (target) {
+        // may point outside the SPA (e.g. /app), so hard-navigate
+        window.location.assign(target);
+        return;
+      }
       router.replace("/my-account");
     } catch (err) {
       const message =
@@ -380,7 +397,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (currentUser) {
-      router.replace("/my-account");
+      const target = redirectTarget();
+      if (target) {
+        window.location.assign(target);
+      } else {
+        router.replace("/my-account");
+      }
     }
   }, [currentUser, router]);
 

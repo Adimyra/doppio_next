@@ -44,7 +44,7 @@ Login, tab-style Sign Up, Forgot password and Reset password share one `AuthShel
 - **Login** — email/password with show/hide toggle; redirects to My Account.
 - **Sign Up** — first/last name, email and **phone with dial-code select**, via a custom `sign_up` API that mirrors Frappe's flow (same `disable_signup` enforcement and return codes) while storing the mobile number.
 - **Forgot** (`/login#forgot`) — Frappe's standard reset email.
-- **Reset** (`/update-password?key=...`) — the generator adds a Website Route Redirect (query params forwarded) so Frappe's reset emails land on the SPA page.
+- **Reset** (`/update-password?key=...`) — Frappe's reset emails land on the SPA page via the hooks redirect.
 
 ### My Account (`/my-account`)
 
@@ -70,7 +70,7 @@ Login, tab-style Sign Up, Forgot password and Reset password share one `AuthShel
 - **Node auto-resolution** — if the Node on PATH is older than 20.9, the generator finds and uses the newest suitable version under nvm automatically (clear instructions if none exists).
 - **shadcn CLI drift handling** — pins the Radix library and the preset non-interactively across CLI majors, and verifies `components.json` actually exists.
 - **Bench ports baked in** — the dev proxy and realtime socket use `webserver_port`/`socketio_port` from `common_site_config.json`, not hardcoded 8000/9000.
-- **Site setup on scaffold** — sets Website Settings `home_page` to the SPA (only when it's the app's sole SPA), adds the `/update-password` redirect, and creates all Adi Settings custom fields.
+- **Site setup on scaffold** — sets Website Settings `home_page` to the SPA (only when it's the app's sole SPA), creates all Adi Settings custom fields, and appends `website_redirects` to the host app's hooks.py so Frappe's default `/login`, `/update-password`, `/about` and `/contact` route to the SPA on every site the app is installed on (`redirect-to` is honored by the SPA login).
 
 ## Requirements
 
@@ -126,7 +126,7 @@ What it does:
    - `/blog` + `/blog/post?name=...` — blog over Frappe's `Blog Post` doctype (skipped with `--no-example`)
 5. Installs `<app>/website_api.py` into the host app (never overwrites your edits)
 6. Patches `package.json` scripts (SPA + app root) so `bench build` works, appends the brand palette to `globals.css`
-7. On the bench's current site: sets `home_page`, adds the reset-password redirect, creates the Adi Settings custom fields
+7. Sets `home_page` on the bench's current site, creates the Adi Settings custom fields, and appends the website_redirects block to the host app's hooks.py
 
 ## Naming and multiple frontends
 

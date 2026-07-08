@@ -199,6 +199,9 @@ class NextSPAGenerator:
         click.echo("🏠 Updating website home page...")
         self.maybe_set_home_page(spas)
 
+        click.echo("🔀 Routing Frappe's default pages to the SPA...")
+        self.patch_hooks_redirects()
+
         prod_note = (
             "yarn build (exports into your app's public/ and www/)"
             if self.serving == "static"
@@ -435,6 +438,35 @@ class NextSPAGenerator:
         root_package_json.write_text(json.dumps(data, indent=2) + "\n")
         return spas
 
+    HOOK_REDIRECT_MARKER = "# --- doppio_next website redirects"
+
+    def patch_hooks_redirects(self):
+        """Append website_redirects to the host app's hooks.py so
+        Frappe's default /login, /update-password, /about and /contact
+        pages route to the SPA on every site the app is installed on.
+        Skipped when the marker is already present (e.g. second SPA)."""
+        hooks_path = self.app_path / self.app / "hooks.py"
+        if not hooks_path.exists():
+            click.echo(f"hooks.py not found at {hooks_path}, skipping")
+            return
+        content = hooks_path.read_text()
+        if self.HOOK_REDIRECT_MARKER in content:
+            click.echo("website_redirects already present in hooks.py")
+            return
+        block = f"""
+
+{self.HOOK_REDIRECT_MARKER} — Frappe's default pages live in the SPA now.
+# Guarded merge so an existing website_redirects list is preserved.
+website_redirects = (globals().get("website_redirects") or []) + [
+    {{"source": "/login", "target": "/{self.spa_name}/login", "forward_query_parameters": 1}},
+    {{"source": "/update-password", "target": "/{self.spa_name}/update-password", "forward_query_parameters": 1}},
+    {{"source": "/about", "target": "/{self.spa_name}/about", "forward_query_parameters": 1}},
+    {{"source": "/contact", "target": "/{self.spa_name}/contact", "forward_query_parameters": 1}},
+]
+"""
+        hooks_path.write_text(content + block)
+        click.echo(f"website_redirects appended to {hooks_path}")
+
     def maybe_set_home_page(self, spas):
         """Point Website Settings.home_page at the SPA on the bench's
         current site — but only when this is the app's only SPA, so a
@@ -480,23 +512,6 @@ class NextSPAGenerator:
                     return
                 ws = frappe.get_doc("Website Settings")
                 ws.home_page = self.spa_name
-                # Route Frappe's own pages to the SPA equivalents so
-                # each exists exactly once: reset-password emails, and
-                # the classic /about and /contact www pages.
-                existing = {
-                    (row.source or "").strip("/ ")
-                    for row in ws.route_redirects
-                }
-                for source in ("update-password", "about", "contact"):
-                    if source not in existing:
-                        ws.append(
-                            "route_redirects",
-                            {
-                                "source": source,
-                                "target": f"/{self.spa_name}/{source}",
-                                "forward_query_parameters": 1,
-                            },
-                        )
                 ws.flags.ignore_permissions = True
                 ws.save()
 
@@ -705,8 +720,7 @@ class NextSPAGenerator:
                 frappe.db.commit()
                 click.echo(
                     f"Website Settings on {site}: home_page = "
-                    f"'{self.spa_name}', /update-password routed to the "
-                    "SPA, Adi Settings tab added"
+                    f"'{self.spa_name}', Adi Settings tab added"
                 )
             finally:
                 frappe.destroy()
