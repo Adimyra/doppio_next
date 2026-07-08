@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useFrappeAuth, useFrappePostCall } from "frappe-react-sdk";
+import {
+  useFrappeAuth,
+  useFrappeGetCall,
+  useFrappePostCall,
+} from "frappe-react-sdk";
 import {
   ArrowRight,
   KeyRound,
@@ -41,6 +45,62 @@ function redirectTarget(): string | null {
   return target && target.startsWith("/") && !target.startsWith("//")
     ? target
     : null;
+}
+
+interface SocialProvider {
+  name: string;
+  provider_name: string;
+  icon?: string;
+  auth_url: string;
+}
+
+/** Social Login Keys (Google, GitHub, ...) — same providers Frappe's
+ *  own login page offers, straight into the OAuth flow. */
+function SocialLogins() {
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  useEffect(() => {
+    setRedirectTo(redirectTarget() ?? "/__SPA__/my-account");
+  }, []);
+
+  const { data } = useFrappeGetCall<{ message: SocialProvider[] }>(
+    "__APP__.website_api.get_social_logins",
+    { redirect_to: redirectTo ?? "/" },
+    redirectTo ? `social-logins-${redirectTo}` : null,
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+  const providers = data?.message ?? [];
+
+  if (!providers.length) return null;
+
+  return (
+    <div className="mt-6">
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-border" />
+        <span className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+          or continue with
+        </span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+      <div className="mt-4 grid gap-2">
+        {providers.map((provider) => (
+          <Button
+            key={provider.name}
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => window.location.assign(provider.auth_url)}
+          >
+            {provider.icon ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={provider.icon} alt="" className="size-4" />
+            ) : null}
+            Login with {provider.provider_name || provider.name}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function LoginForm({ onForgot }: { onForgot: () => void }) {
@@ -466,7 +526,10 @@ export default function LoginPage() {
       ) : effectiveMode === "forgot" ? (
         <ForgotForm onBack={() => setMode("login")} />
       ) : (
-        <LoginForm onForgot={() => setMode("forgot")} />
+        <>
+          <LoginForm onForgot={() => setMode("forgot")} />
+          <SocialLogins />
+        </>
       )}
     </AuthShell>
   );

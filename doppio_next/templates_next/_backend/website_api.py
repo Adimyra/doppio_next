@@ -162,6 +162,35 @@ def get_contact_settings():
     }
 
 
+@frappe.whitelist(allow_guest=True)
+def get_social_logins(redirect_to="/"):
+    """Enabled Social Login Keys with ready-to-use authorize URLs for
+    the SPA login page (same providers Frappe's own login shows)."""
+    from frappe.utils.oauth import get_oauth2_authorize_url
+
+    providers = []
+    for key in frappe.get_all(
+        "Social Login Key",
+        filters={"enable_social_login": 1},
+        fields=["name", "provider_name", "icon"],
+    ):
+        try:
+            providers.append(
+                {
+                    "name": key.name,
+                    "provider_name": key.provider_name,
+                    "icon": key.icon,
+                    "auth_url": get_oauth2_authorize_url(
+                        key.name, redirect_to
+                    ),
+                }
+            )
+        except Exception:
+            # misconfigured provider — skip rather than break login
+            continue
+    return providers
+
+
 def _require_login():
     if frappe.session.user == "Guest":
         frappe.throw(_("Please log in first"), frappe.PermissionError)
