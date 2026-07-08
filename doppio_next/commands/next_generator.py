@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -7,6 +8,25 @@ from pathlib import Path
 import click
 
 TEMPLATES_DIR = Path(__file__).resolve().parent.parent / "templates_next"
+
+# create-next-app / Next.js floor (matches "engines" written into package.json)
+MIN_NODE = (20, 9, 0)
+
+
+def _parse_node_version(raw: str):
+    """'v20.19.5' -> (20, 19, 5), or None if unparseable."""
+    match = re.match(r"v?(\d+)\.(\d+)\.(\d+)", raw.strip())
+    return tuple(int(g) for g in match.groups()) if match else None
+
+
+def _node_version(node_bin: str = "node"):
+    try:
+        out = subprocess.run(
+            [node_bin, "-v"], capture_output=True, text=True, check=True
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return _parse_node_version(out)
 
 # Names that would shadow Frappe/bench routes or break serving
 RESERVED_NAMES = {
@@ -59,8 +79,10 @@ class NextSPAGenerator:
         self.serving = serving
         self.app_path = Path("../apps") / app
         self.spa_path: Path = self.app_path / spa_name
+        self.env = os.environ.copy()
 
         self.validate()
+        self.resolve_node()
 
     def validate(self):
         if self.spa_name == self.app:
@@ -95,6 +117,55 @@ class NextSPAGenerator:
         if not TEMPLATES_DIR.exists():
             click.echo(f"Templates dir missing: {TEMPLATES_DIR}", err=True)
             exit(1)
+
+    def resolve_node(self):
+        """Ensure Node >= 20.9 for every subprocess this generator spawns.
+
+        If the Node on PATH is too old, fall back to the newest suitable
+        version installed under nvm by prepending its bin dir to PATH.
+        Only errors out when no usable Node exists anywhere."""
+        current = _node_version()
+        if current and current >= MIN_NODE:
+            return
+
+        found = "v" + ".".join(map(str, current)) if current else "none"
+
+        nvm_node_dir = (
+            Path(self.env.get("NVM_DIR", Path.home() / ".nvm"))
+            / "versions"
+            / "node"
+        )
+        candidates = []
+        if nvm_node_dir.is_dir():
+            for entry in nvm_node_dir.iterdir():
+                version = _parse_node_version(entry.name)
+                if (
+                    version
+                    and version >= MIN_NODE
+                    and (entry / "bin" / "node").is_file()
+                ):
+                    candidates.append((version, entry / "bin"))
+
+        if candidates:
+            version, bin_dir = max(candidates)
+            self.env["PATH"] = f"{bin_dir}{os.pathsep}{self.env['PATH']}"
+            click.echo(
+                f"⬆️  Node on PATH is {found} (need >= 20.9) — using nvm's "
+                f"Node v{'.'.join(map(str, version))} from {bin_dir}"
+            )
+            return
+
+        click.echo(
+            f"Node >= 20.9 is required, but found {found} and no suitable "
+            "version under nvm.\nFix with:\n"
+            "  nvm install 20 && nvm use 20\n"
+            "or if nvm itself is missing:\n"
+            "  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/"
+            "v0.40.1/install.sh | bash\n"
+            "then restart your terminal and re-run this command.",
+            err=True,
+        )
+        exit(1)
 
     # ------------------------------------------------------------------ #
     def generate(self):
@@ -152,6 +223,7 @@ class NextSPAGenerator:
             ],
             cwd=self.app_path,
             check=True,
+            env=self.env,
         )
 
     def install_dependencies(self):
@@ -159,12 +231,14 @@ class NextSPAGenerator:
             ["yarn", "add", "frappe-react-sdk", "socket.io-client", "motion"],
             cwd=self.spa_path,
             check=True,
+            env=self.env,
         )
         # Typography plugin for rendered Blog Post HTML
         subprocess.run(
             ["yarn", "add", "-D", "@tailwindcss/typography"],
             cwd=self.spa_path,
             check=True,
+            env=self.env,
         )
 
     def setup_shadcn(self):
@@ -172,24 +246,40 @@ class NextSPAGenerator:
         # the Dropdown/Sheet triggers). shadcn CLI 4.x defaults to Base UI
         # ("base-nova" style, no asChild), so pin the Radix library.
         # Flags drift between CLI majors — try newest first:
-        #   4.x:  --base radix
-        #   2-3x: --base-color neutral (radix was the only library)
+        #   4.13+: --base radix --preset nova (interactive preset prompt
+        #          added in 4.13; without the flag, init hangs/aborts)
+        #   4.x:   --base radix
+        #   2-3x:  --base-color neutral (radix was the only library)
         attempts = [
+            ["npx", "shadcn@latest", "init", "--yes",
+             "--base", "radix", "--preset", "nova"],
             ["npx", "shadcn@latest", "init", "--yes", "--base", "radix"],
             ["npx", "shadcn@latest", "init", "--yes", "--base-color", "neutral"],
         ]
         for i, cmd in enumerate(attempts):
             try:
-                subprocess.run(cmd, cwd=self.spa_path, check=True)
-                break
+                subprocess.run(cmd, cwd=self.spa_path, check=True, env=self.env)
             except subprocess.CalledProcessError:
                 if i == len(attempts) - 1:
                     raise
+                continue
+            # A CLI that exits 0 after an aborted prompt leaves no config —
+            # treat that as failure and try the next flag combination.
+            if (self.spa_path / "components.json").exists():
+                break
+        else:
+            click.echo(
+                "shadcn init did not produce components.json — run "
+                f"'npx shadcn@latest init' manually in {self.spa_path}",
+                err=True,
+            )
+            exit(1)
         subprocess.run(
             ["npx", "shadcn@latest", "add", "--yes", "--overwrite"]
             + SHADCN_COMPONENTS,
             cwd=self.spa_path,
             check=True,
+            env=self.env,
         )
 
     # ------------------------------------------------------------------ #
@@ -282,7 +372,7 @@ class NextSPAGenerator:
         root_package_json = self.app_path / "package.json"
 
         if not root_package_json.exists():
-            subprocess.run(["npm", "init", "--yes"], cwd=self.app_path, check=True)
+            subprocess.run(["npm", "init", "--yes"], cwd=self.app_path, check=True, env=self.env)
 
         data = json.loads(root_package_json.read_text())
         scripts = data.setdefault("scripts", {})
